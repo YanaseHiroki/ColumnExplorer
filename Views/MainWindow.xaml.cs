@@ -9,10 +9,16 @@ namespace ColumnExplorer.Views
     public partial class MainWindow : Window
     {
         private bool _homeLoaded;
+        private string _homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
         public MainWindow()
         {
             InitializeComponent();
+            Loaded += MainWindow_Loaded;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
             if (!_homeLoaded)
             {
                 LoadHomeDirectory();
@@ -25,11 +31,7 @@ namespace ColumnExplorer.Views
         /// </summary>
         private void LoadHomeDirectory()
         {
-            string homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            LoadAllContent(homeDirectory, null);
-
-            // 起動後に上下キーでアイテムを選択できるようにフォーカスを設定
-            Column2.Focus();
+            LoadAllContent(_homeDirectory, null);
         }
 
         /// <summary>
@@ -50,7 +52,7 @@ namespace ColumnExplorer.Views
                 {
                     Column1.Items.Add(CreateListBoxItem(Path.GetFileName(dir), dir, isDirectory: true));
                 }
-                // カラム1に追加したカレントディレクトリを選択状態にする
+                // カラム1にあるカレントディレクトリのアイテムを選択状態にする
                 if (Column1.Items.Count > 0)
                 {
                     foreach (ListBoxItem item in Column1.Items)
@@ -73,11 +75,34 @@ namespace ColumnExplorer.Views
             Column2.Items.Clear();
             try
             {
+                // ディレクトリに存在するフォルダーをカラム1に追加
                 foreach (var dir in Directory.GetDirectories(path))
                 {
                     Column2.Items.Add(CreateListBoxItem(Path.GetFileName(dir), dir, isDirectory: true));
                 }
 
+
+                // カラム2にあるカレントディレクトリのアイテムを選択状態にする
+                if (Column2.Items.Count > 0)
+                {
+                    if (selectedItem != null)
+                    {
+                        foreach (ListBoxItem item in Column2.Items)
+                        {
+                            if (item.Tag.ToString() == selectedItem)
+                            {
+                                Column2.SelectedItem = item;
+                                break;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Column2.SelectedIndex = 0;
+                    }
+                }
+
+                // ディレクトリに存在するファイルをカラム2に追加
                 foreach (var file in Directory.GetFiles(path))
                 {
                     Column2.Items.Add(CreateListBoxItem(Path.GetFileName(file), file, isDirectory: false));
@@ -88,23 +113,15 @@ namespace ColumnExplorer.Views
                 MessageBox.Show("アクセスできないフォルダやファイルがあります。");
             }
 
-            if (Column2.Items.Count > 0)
+            // 中央カラムにフォーカスを設定
+            Column2.Focus();
+
+            // 一度下キーを押したときの処理を実行
+            if (Column2.SelectedIndex == 0)
             {
-                if (selectedItem != null)
-                {
-                    foreach (ListBoxItem item in Column2.Items)
-                    {
-                        if (item.Tag.ToString() == selectedItem)
-                        {
-                            Column2.SelectedItem = item;
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    Column2.SelectedIndex = 0;
-                }
+                var keyEvent = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(this), 0, Key.Down)
+                { RoutedEvent = Keyboard.KeyDownEvent };
+                InputManager.Current.ProcessInput(keyEvent);
             }
         }
 
@@ -173,10 +190,43 @@ namespace ColumnExplorer.Views
             {
                 MoveToParentDirectory();
             }
+            else if (e.Key == Key.Up)
+            {
+                SelectUpperItem();
+            }
+            else if (e.Key == Key.Down)
+            {
+                SelectLowerItem();
+            }
+
+            // 中央カラムにフォーカスを設定
+            Column2.Focus();
+
+            // 選択されたアイテムにフォーカスを設定
+            if (Column2.SelectedItem is ListBoxItem selectedListBoxItem)
+            {
+                selectedListBoxItem.Focus();
+            }
+        }
+
+        private void SelectLowerItem()
+        {
+            if (Column2.SelectedIndex < Column2.Items.Count - 1)
+            {
+                Column2.SelectedIndex++;
+            }
+        }
+
+        private void SelectUpperItem()
+        {
+            if (Column2.SelectedIndex > 0)
+            {
+                Column2.SelectedIndex--;
+            }
         }
 
         /// <summary>
-        /// 中央カラムで選択されているフォルダーに移動する。
+        /// 下のディレクトリに移動する。
         /// </summary>
         private void MoveToSubDirectory()
         {
@@ -191,17 +241,18 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// 中央カラムの親ディレクトリに移動する。
+        /// 親ディレクトリに移動する。
         /// </summary>
         private void MoveToParentDirectory()
         {
             if (Column2.SelectedItem is ListBoxItem selectedItem)
             {
                 string path = selectedItem.Tag.ToString();
-                string parentDirectory = Directory.GetParent(path)?.FullName;
+                string currentDirectory = Directory.GetParent(path)?.FullName;
+                string parentDirectory = Directory.GetParent(currentDirectory)?.FullName;
                 if (parentDirectory != null)
                 {
-                    LoadAllContent(parentDirectory, path);
+                    LoadAllContent(parentDirectory, currentDirectory);
                 }
             }
         }
