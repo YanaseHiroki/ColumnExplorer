@@ -1,5 +1,3 @@
-C:\Users\mamor\source\repos\ColumnExplorer\obj\Debug\net9.0-windows\MainWindow.baml
-C:\Users\mamor\source\repos\ColumnExplorer\obj\Debug\net9.0-windows\MainWindow.g.cs
 C:\Users\mamor\source\repos\ColumnExplorer\obj\Debug\net9.0-windows\App.g.cs
 C:\Users\mamor\source\repos\ColumnExplorer\obj\Debug\net9.0-windows\ColumnExplorer_MarkupCompile.cache
 C:\Users\mamor\source\repos\ColumnExplorer\obj\Debug\net9.0-windows\ColumnExplorer.g.resources
@@ -37,3 +35,6 @@ C:\Users\mamor\source\repos\YanaseHiroki\ColumnExplorer\obj\Debug\net9.0-windows
 C:\Users\mamor\source\repos\YanaseHiroki\ColumnExplorer\obj\Debug\net9.0-windows\ref\ColumnExplorer.dll
 C:\Users\mamor\source\repos\YanaseHiroki\ColumnExplorer\obj\Debug\net9.0-windows\Views\MainWindow.baml
 C:\Users\mamor\source\repos\YanaseHiroki\ColumnExplorer\obj\Debug\net9.0-windows\Views\MainWindow.g.cs
+C:\Users\mamor\source\repos\ColumnExplorer\obj\Debug\net9.0-windows\Views\MainWindow.baml
+C:\Users\mamor\source\repos\ColumnExplorer\obj\Debug\net9.0-windows\Views\MainWindow.g.cs
+C:\Users\mamor\source\repos\ColumnExplorer\obj\Debug\net9.0-windows\ColumnExplorer.sourcelink.json
