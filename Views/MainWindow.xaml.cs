@@ -90,6 +90,19 @@ namespace ColumnExplorer.Views
                     {
                         Column3.SelectedIndex = 0; // 最初のアイテムを選択
                         Column3.Focus(); // 右カラム全体にフォーカスを設定
+
+                        // 最初のアイテムにキーボードフォーカスを設定
+                        if (Column3.ItemContainerGenerator.ContainerFromIndex(0) is ListBoxItem firstItem)
+                        {
+                            firstItem.Focus();
+                        }
+
+                        // 下キーを一度押したときの処理を実行
+                        var keyEvent = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(this), 0, Key.Down)
+                        {
+                            RoutedEvent = Keyboard.KeyDownEvent
+                        };
+                        InputManager.Current.ProcessInput(keyEvent);
                     }
                 }
             }
@@ -104,12 +117,26 @@ namespace ColumnExplorer.Views
                 Column3.Items.Clear(); // 右カラムをクリア
                 RestorePreviousSelection(Column2, _previouslyOpenedFolder);
                 Column2.Focus(); // 中央カラムにフォーカスを戻す
+
+                // 下キーを一度押したときの処理を実行
+                var keyEvent = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(this), 0, Key.Down)
+                {
+                    RoutedEvent = Keyboard.KeyDownEvent
+                };
+                InputManager.Current.ProcessInput(keyEvent);
             }
             else if (Column2.SelectedItem != null)
             {
                 Column2.Items.Clear(); // 中央カラムをクリア
                 RestorePreviousSelection(Column1, _previouslyOpenedFolder);
                 Column1.Focus(); // 左カラムにフォーカスを戻す
+
+                // 下キーを一度押したときの処理を実行
+                var keyEvent = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(this), 0, Key.Down)
+                {
+                    RoutedEvent = Keyboard.KeyDownEvent
+                };
+                InputManager.Current.ProcessInput(keyEvent);
             }
         }
 
