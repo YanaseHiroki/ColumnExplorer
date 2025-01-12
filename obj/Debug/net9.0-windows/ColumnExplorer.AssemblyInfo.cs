@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ColumnExplorer")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9bc919c57189a4ecf0c4c56f780a6fab3c657fe7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+23d5f5045ecdf0bdf37559768884920370ca05a9")]
 [assembly: System.Reflection.AssemblyProductAttribute("ColumnExplorer")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ColumnExplorer")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

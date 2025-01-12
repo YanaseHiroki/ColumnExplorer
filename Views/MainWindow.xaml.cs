@@ -8,8 +8,6 @@ namespace ColumnExplorer.Views
 {
     public partial class MainWindow : Window
     {
-        private string _previouslyOpenedFolder; // 直前に開いたフォルダのパスを保持
-
         public MainWindow()
         {
             InitializeComponent();
@@ -21,8 +19,11 @@ namespace ColumnExplorer.Views
             string homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             LoadContent(homeDirectory, Column2);
 
-            var root = Directory.GetDirectoryRoot(homeDirectory);
-            Column1.Items.Add(CreateListBoxItem(root, root, isDirectory: true));
+            string parentDirectory = Directory.GetParent(homeDirectory)?.FullName;
+            if (parentDirectory != null)
+            {
+                LoadContent(parentDirectory, Column1);
+            }
         }
 
         private void LoadContent(string path, ListBox targetColumn)
@@ -62,109 +63,6 @@ namespace ColumnExplorer.Views
             };
         }
 
-        protected override void OnKeyDown(KeyEventArgs e)
-        {
-            base.OnKeyDown(e);
-
-            if (e.Key == Key.Right)
-            {
-                OpenSelectedFolderAndSelectFirstItem();
-            }
-            else if (e.Key == Key.Left)
-            {
-                NavigateToLeftColumnAndSelectPreviousFolder();
-            }
-        }
-        private void OpenSelectedFolderAndSelectFirstItem()
-        {
-            if (Column2.SelectedItem is ListBoxItem selectedItem)
-            {
-                string path = selectedItem.Tag.ToString();
-                if (Directory.Exists(path))
-                {
-                    _previouslyOpenedFolder = path; // 開いたフォルダのパスを記録
-                    LoadContent(path, Column3);
-
-                    // 右カラムで最初のアイテムを即座に選択状態にする
-                    if (Column3.Items.Count > 0)
-                    {
-                        Column3.SelectedIndex = 0; // 最初のアイテムを選択
-                        Column3.Focus(); // 右カラム全体にフォーカスを設定
-
-                        // 最初のアイテムにキーボードフォーカスを設定
-                        if (Column3.ItemContainerGenerator.ContainerFromIndex(0) is ListBoxItem firstItem)
-                        {
-                            firstItem.Focus();
-                        }
-
-                        // 下キーを一度押したときの処理を実行
-                        var keyEvent = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(this), 0, Key.Down)
-                        {
-                            RoutedEvent = Keyboard.KeyDownEvent
-                        };
-                        InputManager.Current.ProcessInput(keyEvent);
-                    }
-                }
-            }
-        }
-
-
-        private void NavigateToLeftColumnAndSelectPreviousFolder()
-        {
-            // 中央カラムがアクティブの場合
-            if (Column3.SelectedItem != null)
-            {
-                Column3.Items.Clear(); // 右カラムをクリア
-                RestorePreviousSelection(Column2, _previouslyOpenedFolder);
-                Column2.Focus(); // 中央カラムにフォーカスを戻す
-
-                // 下キーを一度押したときの処理を実行
-                var keyEvent = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(this), 0, Key.Down)
-                {
-                    RoutedEvent = Keyboard.KeyDownEvent
-                };
-                InputManager.Current.ProcessInput(keyEvent);
-            }
-            else if (Column2.SelectedItem != null)
-            {
-                Column2.Items.Clear(); // 中央カラムをクリア
-                RestorePreviousSelection(Column1, _previouslyOpenedFolder);
-                Column1.Focus(); // 左カラムにフォーカスを戻す
-
-                // 下キーを一度押したときの処理を実行
-                var keyEvent = new KeyEventArgs(Keyboard.PrimaryDevice, PresentationSource.FromVisual(this), 0, Key.Down)
-                {
-                    RoutedEvent = Keyboard.KeyDownEvent
-                };
-                InputManager.Current.ProcessInput(keyEvent);
-            }
-        }
-
-        private void RestorePreviousSelection(ListBox column, string folderPath)
-        {
-            foreach (ListBoxItem item in column.Items)
-            {
-                if (item.Tag.ToString() == folderPath)
-                {
-                    column.SelectedItem = item;
-                    break;
-                }
-            }
-        }
-
-        private void Column1_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (Column1.SelectedItem is ListBoxItem selectedItem)
-            {
-                string path = selectedItem.Tag.ToString();
-                if (Directory.Exists(path))
-                {
-                    LoadContent(path, Column2);
-                    Column3.Items.Clear();
-                }
-            }
-        }
-
         private void Column2_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (Column2.SelectedItem is ListBoxItem selectedItem)
@@ -173,6 +71,79 @@ namespace ColumnExplorer.Views
                 if (Directory.Exists(path))
                 {
                     LoadContent(path, Column3);
+                }
+                else
+                {
+                    Column3.Items.Clear();
+                }
+            }
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            base.OnKeyDown(e);
+
+            if (e.Key == Key.Right)
+            {
+                MoveToSubDirectory();
+            }
+            else if (e.Key == Key.Left)
+            {
+                MoveToParentDirectory();
+            }
+        }
+
+        private void MoveToSubDirectory()
+        {
+            if (Column2.SelectedItem is ListBoxItem selectedItem)
+            {
+                string path = selectedItem.Tag.ToString();
+                if (Directory.Exists(path))
+                {
+                    // 中央カラムの内容を左カラムに移動
+                    LoadContent(path, Column2);
+
+                    // 左カラムに親ディレクトリを表示
+                    string parentDirectory = Directory.GetParent(path)?.FullName;
+                    if (parentDirectory != null)
+                    {
+                        LoadContent(parentDirectory, Column1);
+                    }
+                    else
+                    {
+                        Column1.Items.Clear();
+                    }
+
+                    // 右カラムをクリア
+                    Column3.Items.Clear();
+                }
+            }
+        }
+
+        private void MoveToParentDirectory()
+        {
+            if (Column2.SelectedItem is ListBoxItem selectedItem)
+            {
+                string path = selectedItem.Tag.ToString();
+                string parentDirectory = Directory.GetParent(path)?.FullName;
+                if (parentDirectory != null)
+                {
+                    // 中央カラムの内容を左カラムに移動
+                    LoadContent(parentDirectory, Column2);
+
+                    // 左カラムにさらに上の親ディレクトリを表示
+                    string grandParentDirectory = Directory.GetParent(parentDirectory)?.FullName;
+                    if (grandParentDirectory != null)
+                    {
+                        LoadContent(grandParentDirectory, Column1);
+                    }
+                    else
+                    {
+                        Column1.Items.Clear();
+                    }
+
+                    // 右カラムをクリア
+                    Column3.Items.Clear();
                 }
             }
         }

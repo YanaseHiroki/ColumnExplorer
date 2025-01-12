@@ -9,7 +9,7 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <ListBox x:Name="Column1" SelectionChanged="Column1_SelectionChanged"
+        <ListBox x:Name="Column1" Grid.Column="0"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False" />
         <ListBox x:Name="Column2" Grid.Column="1" SelectionChanged="Column2_SelectionChanged"
