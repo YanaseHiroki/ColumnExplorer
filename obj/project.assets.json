@@ -14,11 +14,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\ColumnExplorer.csproj",
+      "projectUniqueName": "C:\\Users\\mamor\\source\\repos\\YanaseHiroki\\ColumnExplorer\\ColumnExplorer.csproj",
       "projectName": "ColumnExplorer",
-      "projectPath": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\ColumnExplorer.csproj",
+      "projectPath": "C:\\Users\\mamor\\source\\repos\\YanaseHiroki\\ColumnExplorer\\ColumnExplorer.csproj",
       "packagesPath": "C:\\Users\\mamor\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\obj\\",
+      "outputPath": "C:\\Users\\mamor\\source\\repos\\YanaseHiroki\\ColumnExplorer\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -33,7 +33,6 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
