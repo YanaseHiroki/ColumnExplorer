@@ -21,7 +21,7 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 132,
+          "DockedWidth": 82,
           "SelectedChildIndex": -1,
           "Children": [
             {
@@ -39,7 +39,7 @@
           ]
         },
         {
-          "DockedWidth": 268,
+          "DockedWidth": 2651,
           "SelectedChildIndex": 1,
           "Children": [
             {
@@ -61,7 +61,7 @@
               "RelativeDocumentMoniker": "Views\\MainWindow.xaml.cs",
               "ToolTip": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\Views\\MainWindow.xaml.cs",
               "RelativeToolTip": "Views\\MainWindow.xaml.cs",
-              "ViewState": "AgIAALMAAAAAAAAAAAAqwNAAAAANAAAAAAAAAA==",
+              "ViewState": "AgIAAEMAAAAAAAAAAAAawKQAAAANAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-11T14:43:09.232Z",
               "EditorCaption": ""
@@ -76,8 +76,7 @@
               "RelativeToolTip": "obj\\Debug\\net9.0-windows\\Views\\MainWindow.g.i.cs",
               "ViewState": "AgIAABgAAAAAAAAAAAAWwDYAAAAwAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-12T19:24:07.75Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-12T19:24:07.75Z"
             }
           ]
         }
