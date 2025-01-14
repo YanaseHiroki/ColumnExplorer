@@ -249,7 +249,7 @@ namespace ColumnExplorer.Views
             }
 
             // 中央カラムにフォーカスを設定
-            Column2.Focus();
+            //Column2.Focus();
         }
 
         private void SelectLowerItem()
@@ -293,18 +293,18 @@ namespace ColumnExplorer.Views
             {
                 // 選択されていたアイテムのパスを取得
                 string itemPath = selectedItem.Tag.ToString();
-                string currentDirectory = itemPath;
-                // アイテムがディレクトリである場合、それがあるディレクトリのパスをカレントディレクトリとする
-                if (Directory.Exists(itemPath))
+                //移動先のディレクトリ
+                string currentDirectory = Directory.GetParent(itemPath)?.FullName;
+                // 移動先のディレクトリがnullのとき、何もしない
+                if (currentDirectory == null)
                 {
-                    currentDirectory = Directory.GetParent(itemPath)?.FullName;
+                    return;
                 }
                 // 移動先の親ディレクトリを取得
                 string parentDirectory = Directory.GetParent(currentDirectory)?.FullName;
-                //if (parentDirectory != null)
-                //{
-                    LoadAllContent(parentDirectory, currentDirectory);
-                //}
+                
+                // 移動先のディレクトリを表示
+                LoadAllContent(parentDirectory, currentDirectory);
             }
         }
 
