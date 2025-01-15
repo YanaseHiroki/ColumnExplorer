@@ -247,18 +247,32 @@ namespace ColumnExplorer.Views
         {
             if (Column2.SelectedItem is ListBoxItem selectedItem)
             {
-                string? itemPath = selectedItem.Tag?.ToString();
-                if (string.IsNullOrEmpty(itemPath)) return;
+                // カラム2で選択されていたアイテムのパス
+                string? itemPath = (selectedItem.Tag != null)
+                    ? selectedItem.Tag.ToString()
+                    : null;
 
-                // 遷移前と遷移先のディレクトリ
-                string? currentDirectory = Directory.GetParent(itemPath)?.FullName;
-                string? parentDirectory = currentDirectory == null ? null :
+                if (string.IsNullOrEmpty(itemPath))
+                {
+                    if (Column1.SelectedItem is ListBoxItem parentSelectedItem)
+                    {
+                        // カラム1で選択されていたアイテムのパスを元手に移動
+                        MoveToParentDirectoryUrgently(parentSelectedItem);
+                        return;
+                    }
+                }
+
+                // 遷移前のディレクトリ
+                string? currentDirectory = (itemPath == null) ? null :
+                    Directory.GetParent(itemPath)?.FullName;
+                // 遷移先のディレクトリ
+                string? parentDirectory = (currentDirectory == null) ? null :
                     Directory.GetParent(currentDirectory)?.FullName;
 
                 // これ以上、上のディレクトリがない場合
                 if (currentDirectory == null || parentDirectory == null)
                 {
-                    // ドライブのリストをカラム2に表示
+                    // カラム2にドライブのリストを表示
                     ContentLoader.AddDrives(Column2);
                     Column2Label.Text = DRIVE_LABEL;
                     Column2.SelectedIndex = 0;
@@ -269,34 +283,85 @@ namespace ColumnExplorer.Views
                     return;
                 }
 
-                // カラム3にカラム2の内容を移動
-                MoveItems(Column2, Column3);
-                Column3Label.Text = Column2Label.Text;
+                // アイテムを右にずらして、カラム1に遷移先の親ディレクトリの内容を表示
+                MoveItemsRigntAndLoadColumn1(parentDirectory);
 
-                // カラム2にカラム1の内容を移動
-                MoveItems(Column1, Column2);
-                Column2Label.Text = Column1Label.Text;
+            }
+        }
 
-                if (parentDirectory != null)
+        /// <summary>
+        /// カラム1に選択状態のアイテムがない場合はカラム2にドライブリストを表示し、
+        /// カラム1に選択状態のアイテムがある場合は親ディレクトリの内容をカラム1に表示します。
+        /// </summary>
+        /// <param name="parentSelectedItem">カラム1で選択されているアイテム。</param>
+        private void MoveToParentDirectoryUrgently(ListBoxItem parentSelectedItem)
+        {
+            // カラム1に選択状態のアイテムがない場合
+            if (parentSelectedItem.Tag == null)
+            {
+                // カラム2にドライブリストを表示
+                ContentLoader.AddDrives(Column2);
+                Column2Label.Text = DRIVE_LABEL;
+                Column2.SelectedIndex = 0;
+                Column2.Focus();
+                // カラム1の内容を消去
+                Column1.Items.Clear();
+                Column1Label.Text = string.Empty;
+                return;
+            }
+
+            // カラム1に選択状態のアイテムがある場合
+            else
+            {
+                // 遷移先のディレクトリ
+                string? parentDirectory = (parentSelectedItem == null) ? null :
+                    Directory.GetParent(parentSelectedItem.ToString())?.FullName;
+
+                // アイテムを右にずらして、カラム1に遷移先の親ディレクトリの内容を表示
+                MoveItemsRigntAndLoadColumn1(parentDirectory);
+            }
+        }
+
+        /// <summary>
+        /// カラム2の内容をカラム3に移動し、カラム1の内容をカラム2に移動します。
+        /// その後、親ディレクトリの内容をカラム1に表示します。
+        /// </summary>
+        /// <param name="parentDirectory">カラム1に表示する親ディレクトリのパス。</param>
+        private void MoveItemsRigntAndLoadColumn1(string? parentDirectory)
+        {
+            // カラム3にカラム2の内容を移動
+            MoveItems(Column2, Column3);
+            Column3Label.Text = Column2Label.Text;
+
+            // カラム2にカラム1の内容を移動
+            MoveItems(Column1, Column2);
+            Column2Label.Text = Column1Label.Text;
+
+            if (parentDirectory != null)
+            {
+                // カラム1に表示するディレクトリ
+                string? grandParentDirectory = Directory.GetParent(parentDirectory)?.FullName;
+
+                if (grandParentDirectory == null)
                 {
-                    // カラム1に表示するディレクトリ
-                    string? grandParentDirectory = Directory.GetParent(parentDirectory)?.FullName;
-
-                    if (grandParentDirectory == null)
-                    {
-                        // ドライブリストを表示
-                        ContentLoader.AddDrives(Column1);
-                        Column1Label.Text = DRIVE_LABEL;
-                    }
-                    else
-                    {
-                        // 祖父母ディレクトリの内容を表示
-                        ContentLoader.loadItems(Column1, grandParentDirectory);
-                        Column1Label.Text = GetLabel(grandParentDirectory);
-                    }
+                    // ドライブリストを表示
+                    ContentLoader.AddDrives(Column1);
+                    Column1Label.Text = DRIVE_LABEL;
+                }
+                else
+                {
+                    // 祖父母ディレクトリの内容を表示
+                    ContentLoader.loadItems(Column1, grandParentDirectory);
+                    Column1Label.Text = GetLabel(grandParentDirectory);
                 }
             }
         }
+
+        /// <summary>
+        /// 指定されたパスに基づいてラベルを取得します。
+        /// </summary>
+        /// <param name="path">ラベルを取得するパス。</param>
+        /// <returns>パスに基づくラベル。</returns>
         private string GetLabel(string path)
         {
             return (path == Path.GetPathRoot(path))
