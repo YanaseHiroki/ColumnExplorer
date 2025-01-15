@@ -3,19 +3,39 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Column Explorer" Height="450" Width="800">
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
+            <!-- 3つのカラムを定義 -->
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <ListBox x:Name="Column1" Grid.Column="0"
+        <!-- 最初のカラムのフォルダー名表示用TextBlock -->
+        <TextBlock x:Name="Column1Label" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center"
+                   FontWeight="Bold" Background="AliceBlue" Padding="5" />
+        <!-- 最初のカラムのListBox -->
+        <ListBox x:Name="Column1" Grid.Column="0" Grid.Row="1"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False" />
-        <ListBox x:Name="Column2" Grid.Column="1" SelectionChanged="Column2_SelectionChanged"
+
+        <!-- 2番目のカラムのフォルダー名表示用TextBlock -->
+        <TextBlock x:Name="Column2Label" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center"
+                   FontWeight="Bold" Background="AliceBlue" Padding="5" />
+        <!-- 2番目のカラムのListBox。複数選択モードが有効 -->
+        <ListBox x:Name="Column2" Grid.Column="1" Grid.Row="1"
+                 SelectionMode="Extended" SelectionChanged="Column2_SelectionChanged"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False" />
-        <ListBox x:Name="Column3" Grid.Column="2"
+
+        <!-- 3番目のカラムのフォルダー名表示用TextBlock -->
+        <TextBlock x:Name="Column3Label" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Center"
+                   FontWeight="Bold" Background="AliceBlue" Padding="5" />
+        <!-- 3番目のカラムのListBox -->
+        <ListBox x:Name="Column3" Grid.Column="2" Grid.Row="1"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False" />
     </Grid>
