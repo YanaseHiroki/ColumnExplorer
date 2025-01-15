@@ -34,10 +34,10 @@ namespace ColumnExplorer.Helpers
         /// <param name="listBox">内容を表示するListBox。</param>
         /// <param name="path">読み込むディレクトリのパス。</param>
         /// <param name="isDirectory">ディレクトリかどうか。</param>
-        public static void LoadDirectoryContent(ListBox listBox, string path, bool isDirectory)
+        public static void LoadDirectoryContent(ListBox listBox, string path)
         {
             listBox.Items.Clear();
-            if (isDirectory && Directory.Exists(path))
+            if (Directory.Exists(path))
             {
                 try
                 {

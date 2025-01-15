@@ -13,6 +13,7 @@ namespace ColumnExplorer.Views
     /// </summary>
     public partial class MainWindow : Window
     {
+        private const string DRIVE_LABEL = "Drive";
         private string _homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
         /// <summary>
@@ -44,44 +45,83 @@ namespace ColumnExplorer.Views
         /// <summary>
         /// 指定されたパスの内容を各カラムに読み込みます。
         /// </summary>
-        /// <param name="path">読み込むディレクトリのパス。</param>
+        /// <param name="path">読み込むディレクトリのパス（null の場合はドライブリストを表示）。</param>
         /// <param name="selectedItem">選択するアイテムのパス（null の場合は1つ目のアイテムを選択）。</param>
-        private void LoadAllContent(string? path, string? selectedItem)
+        private void LoadAllContent(string? path, string selectedItem)
         {
+
+            // カラム1
             Column1.Items.Clear();
-            if (path == null)
+            if (path != null)
             {
-                ContentLoader.AddDrives(Column1);
-                Column1Label.Text = "Drives";
-            }
-            else
-            {
+                // 親ディレクトリを取得
                 string? parentDirectory = Directory.GetParent(path)?.FullName;
 
                 if (parentDirectory == null)
                 {
+                    // ドライブリストを表示
                     ContentLoader.AddDrives(Column1);
-                    Column1Label.Text = "Drives";
+                    Column1Label.Text = DRIVE_LABEL;
                 }
                 else
                 {
+                    // フォルダーの内容を表示
                     ContentLoader.AddDirectories(Column1, parentDirectory);
                     ContentLoader.AddFiles(Column1, parentDirectory);
                     Column1Label.Text = Path.GetFileName(parentDirectory);
                 }
+                if (Column1.Items.Count > 0 && path != null)
+                {
+                    // 遷移先パスをカラム1で選択状態にする
+                    SelectItemInColumn(Column1, path);
+                }
             }
 
+            // カラム2
             Column2.Items.Clear();
-            DirectoryHelper.LoadDirectoryContent(Column2, path, true);
-            Column2Label.Text = path == Path.GetPathRoot(path) ? path : Path.GetFileName(path);
-
-            Column3.Items.Clear();
-            DirectoryHelper.LoadDirectoryContent(Column3, selectedItem, true);
-            Column3Label.Text = selectedItem != null ? Path.GetFileName(selectedItem) : string.Empty;
-
+            if (path == null)
+            {
+                // ドライブリストを表示
+                ContentLoader.AddDrives(Column2);
+                Column2Label.Text = DRIVE_LABEL;
+            }
+            else
+            {
+                // フォルダーの内容を表示
+                DirectoryHelper.LoadDirectoryContent(Column2, path);
+                Column2Label.Text = path == Path.GetPathRoot(path) ? path : Path.GetFileName(path);
+            }
+            // アイテムを選択状態にする
             if (Column2.Items.Count > 0)
             {
-                Column2.SelectedIndex = selectedItem != null ? Column2.Items.IndexOf(selectedItem) : 0;
+                SelectItemInColumn(Column2, selectedItem);
+            }
+
+            // カラム3
+            Column3.Items.Clear();
+            // フォルダーの内容を表示
+            DirectoryHelper.LoadDirectoryContent(Column3, selectedItem);
+            Column3Label.Text = selectedItem != null ? Path.GetFileName(selectedItem) : string.Empty;
+        }
+
+
+        /// <summary>
+        /// 指定されたパスに一致するアイテムをカラム内で選択状態にします。
+        /// </summary>
+        /// <param name="column">アイテムを選択する対象のListBox。</param>
+        /// <param name="path">選択するアイテムのパス。</param>
+        private void SelectItemInColumn(ListBox column, string path)
+        {
+            if (column.Items.Count > 0 && path != null)
+            {
+                foreach (var item in column.Items)
+                {
+                    if (item is ListBoxItem listBoxItem && listBoxItem.Tag.ToString() == path)
+                    {
+                        column.SelectedItem = listBoxItem;
+                        break;
+                    }
+                }
             }
         }
 
