@@ -12,6 +12,7 @@ namespace ColumnExplorer.Helpers
         /// <param name="listBox">ドライブを追加するListBox。</param>
         public static void AddDrives(ListBox listBox)
         {
+            listBox.Items.Clear();
             foreach (var drive in DriveInfo.GetDrives())
             {
                 if (drive.IsReady)
@@ -22,28 +23,23 @@ namespace ColumnExplorer.Helpers
         }
 
         /// <summary>
-        /// 指定されたディレクトリのサブディレクトリをListBoxに追加します。
+        /// 指定されたディレクトリのサブディレクトリとファイルをListBoxに追加します。
         /// </summary>
-        /// <param name="listBox">サブディレクトリを追加するListBox。</param>
+        /// <param name="listBox">サブディレクトリとファイルを追加するListBox。</param>
         /// <param name="directoryPath">ディレクトリのパス。</param>
-        public static void AddDirectories(ListBox listBox, string directoryPath)
+        public static void loadItems(ListBox listBox, string? directoryPath)
         {
-            foreach (var dir in Directory.GetDirectories(directoryPath))
-            {
-                listBox.Items.Add(DirectoryHelper.CreateListBoxItem(Path.GetFileName(dir), dir, true));
-            }
-        }
-
-        /// <summary>
-        /// 指定されたディレクトリのファイルをListBoxに追加します。
-        /// </summary>
-        /// <param name="listBox">ファイルを追加するListBox。</param>
-        /// <param name="directoryPath">ディレクトリのパス。</param>
-        public static void AddFiles(ListBox listBox, string directoryPath)
-        {
-            foreach (var file in Directory.GetFiles(directoryPath))
-            {
-                listBox.Items.Add(DirectoryHelper.CreateListBoxItem(Path.GetFileName(file), file, false));
+            listBox.Items.Clear();
+            if (directoryPath != null)
+                {
+                foreach (var dir in Directory.GetDirectories(directoryPath))
+                {
+                    listBox.Items.Add(DirectoryHelper.CreateListBoxItem(Path.GetFileName(dir), dir, true));
+                }
+                foreach (var file in Directory.GetFiles(directoryPath))
+                {
+                    listBox.Items.Add(DirectoryHelper.CreateListBoxItem(Path.GetFileName(file), file, false));
+                }
             }
         }
     }

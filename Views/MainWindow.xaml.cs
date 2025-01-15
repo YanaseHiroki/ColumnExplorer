@@ -39,6 +39,7 @@ namespace ColumnExplorer.Views
         private void LoadHomeDirectory()
         {
             LoadAllContent(_homeDirectory, null);
+            Column2.SelectedIndex = 0;
             Column2.Focus();
         }
 
@@ -49,9 +50,7 @@ namespace ColumnExplorer.Views
         /// <param name="selectedItem">選択するアイテムのパス（null の場合は1つ目のアイテムを選択）。</param>
         private void LoadAllContent(string? path, string selectedItem)
         {
-
             // カラム1
-            Column1.Items.Clear();
             if (path != null)
             {
                 // 親ディレクトリを取得
@@ -66,9 +65,8 @@ namespace ColumnExplorer.Views
                 else
                 {
                     // フォルダーの内容を表示
-                    ContentLoader.AddDirectories(Column1, parentDirectory);
-                    ContentLoader.AddFiles(Column1, parentDirectory);
-                    Column1Label.Text = Path.GetFileName(parentDirectory);
+                    ContentLoader.loadItems(Column1, parentDirectory);
+                    Column1Label.Text = GetLabel(parentDirectory);
                 }
                 if (Column1.Items.Count > 0 && path != null)
                 {
@@ -78,7 +76,6 @@ namespace ColumnExplorer.Views
             }
 
             // カラム2
-            Column2.Items.Clear();
             if (path == null)
             {
                 // ドライブリストを表示
@@ -89,7 +86,7 @@ namespace ColumnExplorer.Views
             {
                 // フォルダーの内容を表示
                 DirectoryHelper.LoadDirectoryContent(Column2, path);
-                Column2Label.Text = path == Path.GetPathRoot(path) ? path : Path.GetFileName(path);
+                Column2Label.Text = GetLabel(path);
             }
             // アイテムを選択状態にする
             if (Column2.Items.Count > 0)
@@ -98,12 +95,10 @@ namespace ColumnExplorer.Views
             }
 
             // カラム3
-            Column3.Items.Clear();
             // フォルダーの内容を表示
             DirectoryHelper.LoadDirectoryContent(Column3, selectedItem);
-            Column3Label.Text = selectedItem != null ? Path.GetFileName(selectedItem) : string.Empty;
+            Column3Label.Text = selectedItem != null ? GetLabel(selectedItem) : string.Empty;
         }
-
 
         /// <summary>
         /// 指定されたパスに一致するアイテムをカラム内で選択状態にします。
@@ -252,20 +247,61 @@ namespace ColumnExplorer.Views
         {
             if (Column2.SelectedItem is ListBoxItem selectedItem)
             {
-                string? itemPath = selectedItem.Tag.ToString();
-                if (itemPath == null) return;
+                string? itemPath = selectedItem.Tag?.ToString();
+                if (string.IsNullOrEmpty(itemPath)) return;
+
+                // 遷移前と遷移先のディレクトリ
                 string? currentDirectory = Directory.GetParent(itemPath)?.FullName;
-                if (currentDirectory == null)
+                string? parentDirectory = currentDirectory == null ? null :
+                    Directory.GetParent(currentDirectory)?.FullName;
+
+                // これ以上、上のディレクトリがない場合
+                if (currentDirectory == null || parentDirectory == null)
                 {
-                    // ルートディレクトリの場合、ドライブのリストを表示
-                    LoadAllContent(null, null);
+                    // ドライブのリストをカラム2に表示
+                    ContentLoader.AddDrives(Column2);
+                    Column2Label.Text = DRIVE_LABEL;
+                    Column2.SelectedIndex = 0;
+                    Column2.Focus();
+                    // カラム1の内容を消去
+                    Column1.Items.Clear();
+                    Column1Label.Text = string.Empty;
+                    return;
                 }
-                else
+
+                // カラム3にカラム2の内容を移動
+                MoveItems(Column2, Column3);
+                Column3Label.Text = Column2Label.Text;
+
+                // カラム2にカラム1の内容を移動
+                MoveItems(Column1, Column2);
+                Column2Label.Text = Column1Label.Text;
+
+                if (parentDirectory != null)
                 {
-                    string? parentDirectory = Directory.GetParent(currentDirectory)?.FullName;
-                    LoadAllContent(parentDirectory, currentDirectory);
+                    // カラム1に表示するディレクトリ
+                    string? grandParentDirectory = Directory.GetParent(parentDirectory)?.FullName;
+
+                    if (grandParentDirectory == null)
+                    {
+                        // ドライブリストを表示
+                        ContentLoader.AddDrives(Column1);
+                        Column1Label.Text = DRIVE_LABEL;
+                    }
+                    else
+                    {
+                        // 祖父母ディレクトリの内容を表示
+                        ContentLoader.loadItems(Column1, grandParentDirectory);
+                        Column1Label.Text = GetLabel(grandParentDirectory);
+                    }
                 }
             }
+        }
+        private string GetLabel(string path)
+        {
+            return (path == Path.GetPathRoot(path))
+                ? path
+                : Path.GetFileName(path);
         }
 
         /// <summary>
@@ -327,6 +363,25 @@ namespace ColumnExplorer.Views
                     };
                     Column3.Items.Add(newItem);
                 }
+            }
+        }
+
+        /// <summary>
+        /// アイテムを一つのListBoxから別のListBoxに移動します。
+        /// </summary>
+        /// <param name="source">移動元のListBox。</param>
+        /// <param name="destination">移動先のListBox。</param>
+        private void MoveItems(ListBox source, ListBox destination)
+        {
+            destination.Items.Clear();
+            foreach (var item in source.Items)
+            {
+                var clonedItem = new ListBoxItem
+                {
+                    Content = ((ListBoxItem)item).Content,
+                    Tag = ((ListBoxItem)item).Tag
+                };
+                destination.Items.Add(clonedItem);
             }
         }
     }
