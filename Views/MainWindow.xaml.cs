@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using ColumnExplorer.Helpers;
 
 namespace ColumnExplorer.Views
@@ -199,6 +200,7 @@ namespace ColumnExplorer.Views
             if (CenterColumn.SelectedItem is ListBoxItem selectedItem)
             {
                 RightColumnLabel.Text = selectedItem.Content.ToString();
+                RightColumnPath = selectedItem.Tag?.ToString() ?? string.Empty;
             }
         }
 
@@ -254,7 +256,7 @@ namespace ColumnExplorer.Views
                     SelectLowerItem();
                 }
             }
-            else if (e.Key == Key.Enter) // ⇩
+            else if (e.Key == Key.Enter) // Enter
             {
                 OpenSelectedItems();
             }
@@ -337,10 +339,16 @@ namespace ColumnExplorer.Views
             CenterColumnLabel.Text = RightColumnLabel.Text;
             CenterColumnPath = RightColumnPath;
 
-
-            // 右カラムの表示
+            // 右カラムの内容を消去
             RightColumnLabel.Text = string.Empty;
             RightColumn.Items.Clear();
+
+            // 左カラムで中央カラムのパスを選択
+            if (!string.IsNullOrEmpty(CenterColumnPath))
+            {
+                SelectItemInColumn(LeftColumn, CenterColumnPath);
+            }
+
             // 中央カラムの１つ目のアイテムを選択
             if (CenterColumn.Items.Count > 0)
             {
@@ -413,10 +421,17 @@ namespace ColumnExplorer.Views
                 LeftColumnLabel.Text = GetLabel(newLeftColumnPath);
                 LeftColumnPath = newLeftColumnPath;
             }
+
             // 右カラムのパスを中央カラムで選択
             if (!string.IsNullOrEmpty(RightColumnPath))
             {
                 SelectItemInColumn(CenterColumn, RightColumnPath);
+            }
+
+            // 中央カラムのパスを左カラムで選択
+            if (!string.IsNullOrEmpty(CenterColumnPath))
+            {
+                SelectItemInColumn(LeftColumn, CenterColumnPath);
             }
 
             // 中央カラムで選択状態のアイテムにフォーカスを当てる
@@ -433,9 +448,9 @@ namespace ColumnExplorer.Views
         /// <returns>パスに基づくラベル。</returns>
         private string GetLabel(string path)
         {
-            return (path == Path.GetPathRoot(path) || path == DRIVE)
+            return (path == System.IO.Path.GetPathRoot(path) || path == DRIVE)
                 ? path
-                : Path.GetFileName(path);
+                : System.IO.Path.GetFileName(path);
         }
 
         /// <summary>
