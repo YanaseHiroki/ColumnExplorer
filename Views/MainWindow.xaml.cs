@@ -19,9 +19,9 @@ namespace ColumnExplorer.Views
         private const string SELECTED_ITEMS = "Selected Items";
         // ホームディレクトリ
         private static string _homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        private string Column1Path = string.Empty;
-        private string Column2Path = string.Empty;
-        private string Column3Path = string.Empty;
+        private string LeftColumnPath = string.Empty;
+        private string CenterColumnPath = string.Empty;
+        private string RightColumnPath = string.Empty;
 
         /// <summary>
         /// MainWindowクラスの新しいインスタンスを初期化します。
@@ -48,6 +48,7 @@ namespace ColumnExplorer.Views
             LoadAllContent(_homeDirectory);
         }
 
+
         /// <summary>
         /// 指定されたパスの内容を各カラムに読み込みます。
         /// </summary>
@@ -55,21 +56,21 @@ namespace ColumnExplorer.Views
         {
             try
             {
-                Column2Path = path;
+                CenterColumnPath = path;
 
                 // 中央のパスがない場合、左：なし、中央：ドライブリスト、右：選択されたアイテム
-                if (string.IsNullOrEmpty(Column2Path))
+                if (string.IsNullOrEmpty(CenterColumnPath))
                 {
                     // 中央にドライブリストを表示
-                    ContentLoader.AddDrives(Column2);
-                    Column2Label.Text = DRIVE;
+                    ContentLoader.AddDrives(CenterColumn);
+                    CenterColumnLabel.Text = DRIVE;
                 }
                 // 中央のパスがある場合、左：親ディレクトリ、中央：パスの内容、右：選択されたアイテム
                 else
                 {
                     // 中央にフォルダーの内容を表示
-                    DirectoryHelper.LoadDirectoryContent(Column2, Column2Path);
-                    Column2Label.Text = GetLabel(Column2Path);
+                    DirectoryHelper.LoadDirectoryContent(CenterColumn, CenterColumnPath);
+                    CenterColumnLabel.Text = GetLabel(CenterColumnPath);
                 }
             }
             catch (Exception ex)
@@ -78,51 +79,70 @@ namespace ColumnExplorer.Views
                 throw;
             }
 
-            // 中央でアイテムを選択状態にする
-            SelectItemInColumn(Column2, Column3Path);
-
-
             // 左カラム
-            if (Column2Path != string.Empty)
+            if (CenterColumnPath != string.Empty)
             {
                 // 中央カラムの親ディレクトリを取得して左カラムのパスとする
-                Column1Path = Directory.GetParent(Column2Path)?.FullName;
-                Column1Path = (Column1Path == null) ? string.Empty : Column1Path;
+                LeftColumnPath = Directory.GetParent(CenterColumnPath)?.FullName;
+                LeftColumnPath = (LeftColumnPath == null) ? string.Empty : LeftColumnPath;
 
-                if (string.IsNullOrEmpty(Column1Path))
+                if (string.IsNullOrEmpty(LeftColumnPath))
                 {
                     // ドライブリストを表示
-                    ContentLoader.AddDrives(Column1);
-                    Column1Label.Text = DRIVE;
+                    ContentLoader.AddDrives(LeftColumn);
+                    LeftColumnLabel.Text = DRIVE;
                 }
                 else
                 {
                     // フォルダーの内容を表示
-                    DirectoryHelper.LoadDirectoryContent(Column1, Column1Path);
-                    Column1Label.Text = GetLabel(Column1Path);
+                    DirectoryHelper.LoadDirectoryContent(LeftColumn, LeftColumnPath);
+                    LeftColumnLabel.Text = GetLabel(LeftColumnPath);
                 }
 
-                if (Column1.Items.Count > 0 && Column2Path != null)
+                if (LeftColumn.Items.Count > 0 && CenterColumnPath != null)
                 {
                     // 中央のパスを左カラムで選択状態にする
-                    SelectItemInColumn(Column1, Column2Path);
-                }
-            }
-
-
-            // 中央で選択されたアイテムがフォルダーであれば、その内容を右カラムに表示
-            if (Column2.SelectedItem is ListBoxItem selectedItem)
-            {
-                string? itemPath = selectedItem.Tag?.ToString();
-                if (itemPath != null && Directory.Exists(itemPath))
-                {
-                    DirectoryHelper.LoadDirectoryContent(Column3, itemPath);
-                    Column3Label.Text = GetLabel(itemPath);
+                    SelectItemInColumn(LeftColumn, CenterColumnPath);
                 }
             }
 
             // カラム2のアイテムにフォーカス
-            Column2.Focus();
+            FocusSelectedItemInCenterColumn(string.Empty);
+        }
+
+
+        private void FocusSelectedItemInCenterColumn(string? targetItem)
+        {
+            // 引数の対象アイテムがない場合
+            if (string.IsNullOrEmpty(targetItem))
+            {
+                // 右カラムのパスを中央で選択状態にする
+                SelectItemInColumn(CenterColumn, RightColumnPath);
+            }
+            // 引数の対象アイテムがある場合
+            else
+            {
+                // 対象アイテムを選択状態にする
+                SelectItemInColumn(CenterColumn, targetItem);
+            }
+
+            // 中央で選択されたアイテムがフォルダーであれば、その内容を右カラムに表示
+            if (CenterColumn.SelectedItem is ListBoxItem selectedItem)
+            {
+                string? itemPath = selectedItem.Tag?.ToString();
+                if (itemPath != null && Directory.Exists(itemPath))
+                {
+                    DirectoryHelper.LoadDirectoryContent(RightColumn, itemPath);
+                    RightColumnLabel.Text = GetLabel(itemPath);
+                    RightColumnPath = itemPath;
+                }
+            }
+
+            // 中央カラムで選択状態のアイテムにフォーカスを当てる
+            if (CenterColumn.SelectedItem is ListBoxItem selectedListBoxItem)
+            {
+                selectedListBoxItem.Focus();
+            }
         }
 
         /// <summary>
@@ -151,13 +171,16 @@ namespace ColumnExplorer.Views
                         column.SelectedItem = listBoxItem;
                         break;
                     }
-
                 }
             }
         }
-        private void Column1_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        /// <summary>
+        /// LeftColumnの選択が変更されたときに呼び出されるイベントハンドラー。
+        /// </summary>
+        private void LeftColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (Column1.SelectedItem is ListBoxItem selectedItem)
+            if (LeftColumn.SelectedItem is ListBoxItem selectedItem)
             {
                 string? itemPath = selectedItem.Tag?.ToString();
                 if (itemPath != null && Directory.Exists(itemPath))
@@ -168,19 +191,23 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// Column2の選択が変更されたときに呼び出されるイベントハンドラー。
+        /// CenterColumnの選択が変更されたときに呼び出されるイベントハンドラー。
         /// </summary>
-        private void Column2_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void CenterColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            EventHandlers.Column2_SelectionChanged(sender, e, Column3);
-            if (Column2.SelectedItem is ListBoxItem selectedItem)
+            EventHandlers.CenterColumn_SelectionChanged(sender, e, RightColumn);
+            if (CenterColumn.SelectedItem is ListBoxItem selectedItem)
             {
-                Column3Label.Text = selectedItem.Content.ToString();
+                RightColumnLabel.Text = selectedItem.Content.ToString();
             }
         }
-        private void Column3_SelectionChanged(object sender, SelectionChangedEventArgs e)
+
+        /// <summary>
+        /// RightColumnの選択が変更されたときに呼び出されるイベントハンドラー。
+        /// </summary>
+        private void RightColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (Column3.SelectedItem is ListBoxItem selectedItem)
+            if (RightColumn.SelectedItem is ListBoxItem selectedItem)
             {
                 string? itemPath = selectedItem.Tag?.ToString();
                 if (itemPath != null && Directory.Exists(itemPath))
@@ -197,15 +224,15 @@ namespace ColumnExplorer.Views
         {
             base.OnKeyDown(e);
 
-            if (e.Key == Key.Right)
+            if (e.Key == Key.Right) // →
             {
                 MoveToSubDirectory();
             }
-            else if (e.Key == Key.Left)
+            else if (e.Key == Key.Left) // ←
             {
                 MoveToParentDirectory();
             }
-            else if (e.Key == Key.Up)
+            else if (e.Key == Key.Up) // ↑
             {
                 if (Keyboard.Modifiers == ModifierKeys.Shift)
                 {
@@ -216,7 +243,7 @@ namespace ColumnExplorer.Views
                     SelectUpperItem();
                 }
             }
-            else if (e.Key == Key.Down)
+            else if (e.Key == Key.Down) // ↓
             {
                 if (Keyboard.Modifiers == ModifierKeys.Shift)
                 {
@@ -227,59 +254,59 @@ namespace ColumnExplorer.Views
                     SelectLowerItem();
                 }
             }
-            else if (e.Key == Key.Enter)
+            else if (e.Key == Key.Enter) // ⇩
             {
                 OpenSelectedItems();
             }
         }
 
         /// <summary>
-        /// Column2の選択を次のアイテムに移動します。
+        /// CenterColumnの選択を次のアイテムに移動します。
         /// </summary>
         private void SelectLowerItem()
         {
-            if (Column2.SelectedIndex < Column2.Items.Count - 1)
+            if (CenterColumn.SelectedIndex < CenterColumn.Items.Count - 1)
             {
-                Column2.SelectedIndex++;
+                CenterColumn.SelectedIndex++;
             }
         }
 
         /// <summary>
-        /// Column2の選択を前のアイテムに移動します。
+        /// CenterColumnの選択を前のアイテムに移動します。
         /// </summary>
         private void SelectUpperItem()
         {
-            if (Column2.SelectedIndex > 0)
+            if (CenterColumn.SelectedIndex > 0)
             {
-                Column2.SelectedIndex--;
+                CenterColumn.SelectedIndex--;
             }
         }
 
         /// <summary>
-        /// Shiftキーを押しながらColumn2の選択を次のアイテムに移動します。
+        /// Shiftキーを押しながらCenterColumnの選択を次のアイテムに移動します。
         /// </summary>
         private void SelectLowerItemWithShift()
         {
-            if (Column2.SelectedIndex < Column2.Items.Count - 1)
+            if (CenterColumn.SelectedIndex < CenterColumn.Items.Count - 1)
             {
-                int nextIndex = Column2.SelectedIndex + 1;
-                Column2.SelectedItems.Add(Column2.Items[nextIndex]);
-                Column2.SelectedIndex = nextIndex;
-                UpdateColumn3WithSelectedItems();
+                int nextIndex = CenterColumn.SelectedIndex + 1;
+                CenterColumn.SelectedItems.Add(CenterColumn.Items[nextIndex]);
+                CenterColumn.SelectedIndex = nextIndex;
+                UpdateRightColumnWithSelectedItems();
             }
         }
 
         /// <summary>
-        /// Shiftキーを押しながらColumn2の選択を前のアイテムに移動します。
+        /// Shiftキーを押しながらCenterColumnの選択を前のアイテムに移動します。
         /// </summary>
         private void SelectUpperItemWithShift()
         {
-            if (Column2.SelectedIndex > 0)
+            if (CenterColumn.SelectedIndex > 0)
             {
-                int previousIndex = Column2.SelectedIndex - 1;
-                Column2.SelectedItems.Add(Column2.Items[previousIndex]);
-                Column2.SelectedIndex = previousIndex;
-                UpdateColumn3WithSelectedItems();
+                int previousIndex = CenterColumn.SelectedIndex - 1;
+                CenterColumn.SelectedItems.Add(CenterColumn.Items[previousIndex]);
+                CenterColumn.SelectedIndex = previousIndex;
+                UpdateRightColumnWithSelectedItems();
             }
         }
 
@@ -288,27 +315,61 @@ namespace ColumnExplorer.Views
         /// </summary>
         private void MoveToSubDirectory()
         {
-            if (Column2.SelectedItem is ListBoxItem selectedItem)
+            if (CenterColumn.SelectedItem is ListBoxItem selectedItem)
             {
-                string? path = selectedItem.Tag?.ToString();
-                if (path != null && Directory.Exists(path))
+                string? selectedItemPath = selectedItem.Tag?.ToString();
+                if (selectedItemPath != null && Directory.Exists(selectedItemPath))
                 {
-                    LoadAllContent(path);
+                    MoveItemsLeft();
                 }
             }
         }
 
+        private void MoveItemsLeft()
+        {
+            // 左カラムに中央カラムの内容を移動
+            MoveItems(CenterColumn, LeftColumn);
+            LeftColumnLabel.Text = CenterColumnLabel.Text;
+            LeftColumnPath = CenterColumnPath;
+
+            // 中央カラムに右カラムの内容を移動
+            MoveItems(RightColumn, CenterColumn);
+            CenterColumnLabel.Text = RightColumnLabel.Text;
+            CenterColumnPath = RightColumnPath;
+
+
+            // 右カラムの表示
+            RightColumnLabel.Text = string.Empty;
+            RightColumn.Items.Clear();
+            // 中央カラムの１つ目のアイテムを選択
+            if (CenterColumn.Items.Count > 0)
+            {
+                CenterColumn.SelectedIndex = 0;
+            }
+
+            // 中央カラムで選択状態のアイテムにフォーカスを当てる
+            if (CenterColumn.SelectedItem is ListBoxItem selectedListBoxItem)
+            {
+                selectedListBoxItem.Focus();
+            }
+        }
+
         /// <summary>
-        /// 右キーが押されたとき親ディレクトリがあれば移動します。
+        /// 左キーが押されたとき親ディレクトリがあれば移動します。
         /// </summary>
         private void MoveToParentDirectory()
         {
             // 左カラムに表示されているか
-            if (Directory.Exists(Column1Path) || string.Equals(Column1Path, DRIVE))
+            if (Directory.Exists(LeftColumnPath))
             {
-                string? newColumn1Path = Directory.GetParent(Column1Path)?.FullName;
-                // アイテムを右にずらして、左カラムに親ディレクトリの内容を表示
-                MoveItemsRignt(newColumn1Path);
+                string? newLeftColumnPath = Directory.GetParent(LeftColumnPath)?.FullName;
+                MoveItemsRignt(newLeftColumnPath);
+
+            // 左カラムにドライブリストが表示されていたか
+            } else if (string.Equals(LeftColumnPath, DRIVE))
+            {
+                string newLeftColumnPath = string.Empty;
+                MoveItemsRignt(newLeftColumnPath);
             }
         }
 
@@ -317,46 +378,52 @@ namespace ColumnExplorer.Views
         /// その後、親ディレクトリの内容を左カラムに表示します。
         /// </summary>
         /// <param name="parentDirectory">左カラムに表示するディレクトリのパス。</param>
-        private void MoveItemsRignt(string? newColumn1Path)
+        private void MoveItemsRignt(string? newLeftColumnPath)
         {
             // 右カラムに中央カラムの内容を移動
-            MoveItems(Column2, Column3);
-            Column3Label.Text = Column2Label.Text;
-            Column3Path = Column2Path;
+            MoveItems(CenterColumn, RightColumn);
+            RightColumnLabel.Text = CenterColumnLabel.Text;
+            RightColumnPath = CenterColumnPath;
 
             // 中央カラムに左カラムの内容を移動
-            MoveItems(Column1, Column2);
-            Column2Label.Text = Column1Label.Text;
-            Column2Path = Column1Path;
+            MoveItems(LeftColumn, CenterColumn);
+            CenterColumnLabel.Text = LeftColumnLabel.Text;
+            CenterColumnPath = LeftColumnPath;
 
             // 左カラムに表示
-            if (string.Equals(Column2Path, DRIVE))
+            // 中央カラムにドライブリストが表示される場合
+            if (string.Equals(CenterColumnPath, DRIVE))
             {
-                // 表示をクリアする
-                Column2.Items.Clear();
-                Column2Path = string.Empty;
-                Column2Path = string.Empty;
+                // 左カラムの表示をクリアする
+                LeftColumn.Items.Clear();
+                LeftColumnLabel.Text = string.Empty;
+                LeftColumnPath = string.Empty;
             }
-            else if (!string.Equals(Column2Path, DRIVE) && string.IsNullOrEmpty(newColumn1Path))
+            else if (!string.Equals(CenterColumnPath, DRIVE) && string.IsNullOrEmpty(newLeftColumnPath))
             {
                 // ドライブリストを表示
-                ContentLoader.AddDrives(Column1);
-                Column1Label.Text = DRIVE;
-                Column1Path = DRIVE;
+                ContentLoader.AddDrives(LeftColumn);
+                LeftColumnLabel.Text = DRIVE;
+                LeftColumnPath = DRIVE;
             }
             else
             {
                 // ディレクトリの内容を表示
-                DirectoryHelper.LoadDirectoryContent(Column1, newColumn1Path);
-                Column1Label.Text = GetLabel(newColumn1Path);
-                Column1Path = newColumn1Path;
+                DirectoryHelper.LoadDirectoryContent(LeftColumn, newLeftColumnPath);
+                LeftColumnLabel.Text = GetLabel(newLeftColumnPath);
+                LeftColumnPath = newLeftColumnPath;
             }
             // 右カラムのパスを中央カラムで選択
-            if (!string.IsNullOrEmpty(Column3Path))
+            if (!string.IsNullOrEmpty(RightColumnPath))
             {
-                SelectItemInColumn(Column2, Column3Path);
+                SelectItemInColumn(CenterColumn, RightColumnPath);
             }
-            Column2.Focus();
+
+            // 中央カラムで選択状態のアイテムにフォーカスを当てる
+            if (CenterColumn.SelectedItem is ListBoxItem selectedListBoxItem)
+            {
+                selectedListBoxItem.Focus();
+            }
         }
 
         /// <summary>
@@ -376,7 +443,7 @@ namespace ColumnExplorer.Views
         /// </summary>
         private void OpenSelectedItems()
         {
-            foreach (var selectedItem in Column2.SelectedItems)
+            foreach (var selectedItem in CenterColumn.SelectedItems)
             {
                 if (selectedItem is ListBoxItem listBoxItem)
                 {
@@ -392,14 +459,14 @@ namespace ColumnExplorer.Views
         /// <summary>
         /// 中央カラムで選択されたアイテムを右カラムに表示します。
         /// </summary>
-        private void UpdateColumn3WithSelectedItems()
+        private void UpdateRightColumnWithSelectedItems()
         {
             // 右カラムのアイテムを消去
-            Column3.Items.Clear();
+            RightColumn.Items.Clear();
             // 右カラムのラベルを更新
-            Column3Label.Text = SELECTED_ITEMS;
+            RightColumnLabel.Text = SELECTED_ITEMS;
             // 中央カラムで選択されたアイテムを右カラムに表示
-            foreach (var selectedItem in Column2.SelectedItems)
+            foreach (var selectedItem in CenterColumn.SelectedItems)
             {
                 if (selectedItem is ListBoxItem listBoxItem)
                 {
@@ -409,11 +476,11 @@ namespace ColumnExplorer.Views
                         BorderBrush = Brushes.Black,
                         BorderThickness = new Thickness(1)
                     };
-                    Column3.Items.Add(newItem);
+                    RightColumn.Items.Add(newItem);
                 }
             }
             // 右カラムのアイテムをすべて選択状態にする
-            Column3.SelectAll();
+            RightColumn.SelectAll();
         }
 
         /// <summary>
@@ -435,7 +502,8 @@ namespace ColumnExplorer.Views
                 var clonedItem = new ListBoxItem
                 {
                     Content = ((ListBoxItem)item).Content,
-                    Tag = ((ListBoxItem)item).Tag
+                    Tag = ((ListBoxItem)item).Tag,
+                    Foreground = ((ListBoxItem)item).Foreground
                 };
                 destination.Items.Add(clonedItem);
             }
