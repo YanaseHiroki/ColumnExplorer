@@ -9,18 +9,18 @@ namespace ColumnExplorer.Helpers
     public static class EventHandlers
     {
         /// <summary>
-        /// Column2の選択が変更されたときに呼び出されるイベントハンドラー。
-        /// 選択されたディレクトリの内容をColumn3に表示します。
+        /// centerColumnの選択が変更されたときに呼び出されるイベントハンドラー。
+        /// 選択されたディレクトリの内容をrightColumnに表示します。
         /// </summary>
         /// <param name="sender">イベントを発生させたオブジェクト。</param>
         /// <param name="e">イベントデータ。</param>
-        /// <param name="column3">内容を表示するListBox。</param>
-        public static void Column2_SelectionChanged(object sender, SelectionChangedEventArgs e, ListBox column3)
+        /// <param name="rightColumn">内容を表示するListBox。</param>
+        public static void CenterColumn_SelectionChanged(object sender, SelectionChangedEventArgs e, ListBox rightColumn)
         {
-            if (sender is ListBox column2 && column2.SelectedItem is ListBoxItem selectedItem)
+            if (sender is ListBox centerColumn && centerColumn.SelectedItem is ListBoxItem selectedItem)
             {
                 string? path = selectedItem.Tag == null ? null : selectedItem.Tag.ToString();
-                DirectoryHelper.LoadDirectoryContent(column3, path);
+                DirectoryHelper.LoadDirectoryContent(rightColumn, path);
             }
         }
     }

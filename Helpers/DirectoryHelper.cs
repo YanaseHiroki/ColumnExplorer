@@ -23,7 +23,6 @@ namespace ColumnExplorer.Helpers
             {
                 Content = displayName,
                 Tag = path,
-                FontWeight = isDirectory ? FontWeights.Bold : FontWeights.Normal,
                 Foreground = isDirectory ? Brushes.Blue : Brushes.Black
             };
         }
