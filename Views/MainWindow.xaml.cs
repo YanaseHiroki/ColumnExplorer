@@ -304,7 +304,7 @@ namespace ColumnExplorer.Views
         private void MoveToParentDirectory()
         {
             // 左カラムに表示されているか
-            if (Directory.Exists(Column1Path))
+            if (Directory.Exists(Column1Path) || string.Equals(Column1Path, DRIVE))
             {
                 string? newColumn1Path = Directory.GetParent(Column1Path)?.FullName;
                 // アイテムを右にずらして、左カラムに親ディレクトリの内容を表示
@@ -330,7 +330,14 @@ namespace ColumnExplorer.Views
             Column2Path = Column1Path;
 
             // 左カラムに表示
-            if (string.IsNullOrEmpty(newColumn1Path))
+            if (string.Equals(Column2Path, DRIVE))
+            {
+                // 表示をクリアする
+                Column2.Items.Clear();
+                Column2Path = string.Empty;
+                Column2Path = string.Empty;
+            }
+            else if (!string.Equals(Column2Path, DRIVE) && string.IsNullOrEmpty(newColumn1Path))
             {
                 // ドライブリストを表示
                 ContentLoader.AddDrives(Column1);
