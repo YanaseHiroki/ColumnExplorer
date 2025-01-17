@@ -19,6 +19,7 @@
                    FontWeight="Bold" Background="AliceBlue" Padding="5" />
         <!-- 最初のカラムのListBox -->
         <ListBox x:Name="Column1" Grid.Column="0" Grid.Row="1"
+                 SelectionMode="Extended" SelectionChanged="Column1_SelectionChanged"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False" />
 
@@ -36,6 +37,7 @@
                    FontWeight="Bold" Background="AliceBlue" Padding="5" />
         <!-- 3番目のカラムのListBox -->
         <ListBox x:Name="Column3" Grid.Column="2" Grid.Row="1"
+                 SelectionMode="Extended" SelectionChanged="Column3_SelectionChanged"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False" />
     </Grid>
