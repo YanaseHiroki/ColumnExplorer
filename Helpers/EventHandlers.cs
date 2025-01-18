@@ -19,7 +19,7 @@ namespace ColumnExplorer.Helpers
         {
             if (sender is ListBox centerColumn && centerColumn.SelectedItem is ListBoxItem selectedItem)
             {
-                string? path = selectedItem.Tag == null ? null : selectedItem.Tag.ToString();
+                string? path = (selectedItem.Tag == null) ? string.Empty : selectedItem.Tag.ToString();
                 DirectoryHelper.LoadDirectoryContent(rightColumn, path);
             }
         }

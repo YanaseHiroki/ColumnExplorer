@@ -31,6 +31,50 @@ namespace ColumnExplorer.Views
         {
             InitializeComponent();
             Loaded += MainWindow_Loaded;
+            LeftColumn.MouseLeftButtonUp += LeftColumn_MouseLeftButtonUp;
+            RightColumn.SelectionChanged += RightColumn_SelectionChanged;
+        }
+
+        /// <summary>
+        /// 右カラムの選択が変更されたときに呼び出されるイベントハンドラー。
+        /// </summary>
+        private void RightColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (RightColumn.SelectedItem is ListBoxItem selectedItem)
+            {
+                // 右カラムで選択されているアイテムのパス
+                string? selectedItemPath = selectedItem.Tag?.ToString();
+
+                // アイテムのパスがある場合、中央カラムで選択状態にする
+                if (selectedItemPath != null)
+                {
+                    // 右カラムの内容が中央に来るように全体を左にずらす
+                    MoveItemsLeft();
+
+                    // クリックされたアイテムを中央カラムで選択状態にする
+                    SelectItemInColumn(CenterColumn, selectedItemPath);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 左カラムのアイテムがクリックされたときに呼び出されるイベントハンドラー。
+        /// </summary>
+        private void LeftColumn_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (LeftColumn.SelectedItem is ListBoxItem selectedItem)
+            {
+                // 左カラムで選択されているアイテムのパス
+                string? selectedItemPath = selectedItem.Tag?.ToString();
+
+                // アイテムのパスがあり、中央カラムの表示パスと異なるか
+                if (selectedItemPath != null
+                    && !string.Equals(selectedItemPath, CenterColumnPath))
+                {
+                    // 選択されたアイテムの内容を中央カラムに表示
+                    LoadAllContent(selectedItemPath);
+                }
+            }
         }
 
         /// <summary>
@@ -112,6 +156,10 @@ namespace ColumnExplorer.Views
         }
 
 
+        /// <summary>
+        /// 中央カラムで選択状態のアイテムにフォーカスを当て、必要に応じて右カラムにその内容を表示します。
+        /// </summary>
+        /// <param name="targetItem">フォーカスを当てる対象アイテムのパス。nullまたは空の場合、右カラムのパスを使用します。</param>
         private void FocusSelectedItemInCenterColumn(string? targetItem)
         {
             // 引数の対象アイテムがない場合
@@ -133,6 +181,7 @@ namespace ColumnExplorer.Views
                 string? itemPath = selectedItem.Tag?.ToString();
                 if (itemPath != null && Directory.Exists(itemPath))
                 {
+                    // 右カラムにフォルダーの内容を表示
                     DirectoryHelper.LoadDirectoryContent(RightColumn, itemPath);
                     RightColumnLabel.Text = GetLabel(itemPath);
                     RightColumnPath = itemPath;
@@ -177,22 +226,7 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// LeftColumnの選択が変更されたときに呼び出されるイベントハンドラー。
-        /// </summary>
-        private void LeftColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (LeftColumn.SelectedItem is ListBoxItem selectedItem)
-            {
-                string? itemPath = selectedItem.Tag?.ToString();
-                if (itemPath != null && Directory.Exists(itemPath))
-                {
-                    // TODO：中央カラムのパスを更新して全体の内容を読み込み直す
-                }
-            }
-        }
-
-        /// <summary>
-        /// CenterColumnの選択が変更されたときに呼び出されるイベントハンドラー。
+        /// 中央カラムの選択が変更されたときに呼び出されるイベントハンドラー。
         /// </summary>
         private void CenterColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
@@ -201,21 +235,6 @@ namespace ColumnExplorer.Views
             {
                 RightColumnLabel.Text = selectedItem.Content.ToString();
                 RightColumnPath = selectedItem.Tag?.ToString() ?? string.Empty;
-            }
-        }
-
-        /// <summary>
-        /// RightColumnの選択が変更されたときに呼び出されるイベントハンドラー。
-        /// </summary>
-        private void RightColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (RightColumn.SelectedItem is ListBoxItem selectedItem)
-            {
-                string? itemPath = selectedItem.Tag?.ToString();
-                if (itemPath != null && Directory.Exists(itemPath))
-                {
-                    // TODO：中央カラムのパスを更新して全体の内容を読み込み直す
-                }
             }
         }
 

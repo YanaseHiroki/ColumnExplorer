@@ -22,7 +22,7 @@
 
         <!-- 最初のカラムのListBox -->
         <ListBox x:Name="LeftColumn" Grid.Column="0" Grid.Row="1"
-                 SelectionMode="Extended" SelectionChanged="LeftColumn_SelectionChanged"
+                 SelectionMode="Extended"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False" FontSize="13" />
 
@@ -45,7 +45,7 @@
         </Border>
         <!-- 3番目のカラムのListBox -->
         <ListBox x:Name="RightColumn" Grid.Column="2" Grid.Row="1"
-                 SelectionMode="Extended" SelectionChanged="RightColumn_SelectionChanged"
+                 SelectionMode="Extended"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False" FontSize="13" />
     </Grid>
