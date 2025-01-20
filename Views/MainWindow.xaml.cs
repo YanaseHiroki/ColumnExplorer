@@ -94,7 +94,7 @@ namespace ColumnExplorer.Views
         }
 
 
-        /// <summary>
+        /// <summary> 
         /// 指定されたパスの内容を各カラムに読み込みます。
         /// </summary>
         private void LoadAllContent(string path)
@@ -151,7 +151,7 @@ namespace ColumnExplorer.Views
                 }
             }
 
-            // カラム2のアイテムにフォーカス
+            // 中央カラムで1番目のアイテムを選択状態にする
             FocusSelectedItemInCenterColumn(string.Empty);
         }
 
@@ -208,8 +208,9 @@ namespace ColumnExplorer.Views
                 column.SelectedIndex = 0;
                 return;
             }
+            else
 
-            // 対象カラムに候補のアイテムがあれば、選択するアイテムを検索
+            // 対象カラムに候補のアイテムがあるか検索
             if (column.Items.Count > 0)
             {
                 foreach (var item in column.Items)
@@ -222,6 +223,13 @@ namespace ColumnExplorer.Views
                         break;
                     }
                 }
+
+                // 検索して見つからない場合、1番目のアイテムを選択
+                if (column.SelectedItem == null && column.Items.Count > 0)
+                {
+                    column.SelectedIndex = 0;
+                }
+
             }
         }
 
