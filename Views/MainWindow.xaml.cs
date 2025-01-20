@@ -4,7 +4,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Shapes;
 using ColumnExplorer.Helpers;
 
 namespace ColumnExplorer.Views
@@ -19,10 +18,10 @@ namespace ColumnExplorer.Views
         // 選択されたアイテムを表す文字列
         private const string SELECTED_ITEMS = "Selected Items";
         // ホームディレクトリ
-        private static string _homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-        private string LeftColumnPath = string.Empty;
-        private string CenterColumnPath = string.Empty;
-        private string RightColumnPath = string.Empty;
+        internal static string _homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        internal string LeftColumnPath = string.Empty;
+        internal string CenterColumnPath = string.Empty;
+        internal string RightColumnPath = string.Empty;
 
         /// <summary>
         /// MainWindowクラスの新しいインスタンスを初期化します。
@@ -88,7 +87,7 @@ namespace ColumnExplorer.Views
         /// <summary>
         /// ホームディレクトリの内容を読み込みます。
         /// </summary>
-        private void LoadHomeDirectory()
+        internal void LoadHomeDirectory()
         {
             LoadAllContent(_homeDirectory);
         }
@@ -97,7 +96,7 @@ namespace ColumnExplorer.Views
         /// <summary> 
         /// 指定されたパスの内容を各カラムに読み込みます。
         /// </summary>
-        private void LoadAllContent(string path)
+        internal void LoadAllContent(string path)
         {
             try
             {
@@ -200,7 +199,7 @@ namespace ColumnExplorer.Views
         /// </summary>
         /// <param name="column">アイテムを選択する対象のListBox。</param>
         /// <param name="path">選択するアイテムのパス。</param>
-        private void SelectItemInColumn(ListBox column, string path)
+        internal void SelectItemInColumn(ListBox column, string path)
         {
             //　選択対象のパスがない場合、1つ目のアイテムを選択
             if (string.IsNullOrEmpty(path))
@@ -287,6 +286,10 @@ namespace ColumnExplorer.Views
             {
                 OpenSelectedItems();
             }
+            else if (e.Key == Key.F5) // F5
+            {
+                LoadAllContent(CenterColumnPath);
+            }
         }
 
         /// <summary>
@@ -342,7 +345,7 @@ namespace ColumnExplorer.Views
         /// <summary>
         /// 右キーが押されたとき中央カラムでディレクトリが選択されていれば、そこに移動します。
         /// </summary>
-        private void MoveToSubDirectory()
+        internal void MoveToSubDirectory()
         {
             if (CenterColumn.SelectedItem is ListBoxItem selectedItem)
             {
@@ -392,7 +395,7 @@ namespace ColumnExplorer.Views
         /// <summary>
         /// 左キーが押されたとき親ディレクトリがあれば移動します。
         /// </summary>
-        private void MoveToParentDirectory()
+        internal void MoveToParentDirectory()
         {
             // 左カラムに表示されているか
             if (Directory.Exists(LeftColumnPath))
@@ -483,7 +486,7 @@ namespace ColumnExplorer.Views
         /// <summary>
         /// 選択されたアイテムを開きます。
         /// </summary>
-        private void OpenSelectedItems()
+        internal void OpenSelectedItems()
         {
             foreach (var selectedItem in CenterColumn.SelectedItems)
             {
@@ -501,7 +504,7 @@ namespace ColumnExplorer.Views
         /// <summary>
         /// 中央カラムで選択されたアイテムを右カラムに表示します。
         /// </summary>
-        private void UpdateRightColumnWithSelectedItems()
+        internal void UpdateRightColumnWithSelectedItems()
         {
             // 右カラムのアイテムを消去
             RightColumn.Items.Clear();
@@ -530,7 +533,7 @@ namespace ColumnExplorer.Views
         /// </summary>
         /// <param name="source">移動元のListBox。</param>
         /// <param name="destination">移動先のListBox。</param>
-        private void MoveItems(ListBox source, ListBox destination)
+        internal void MoveItems(ListBox source, ListBox destination)
         {
             // 移動先のアイテムを消去
             destination.Items.Clear();
