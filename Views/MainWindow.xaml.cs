@@ -28,6 +28,8 @@ namespace ColumnExplorer.Views
         /// </summary>
         public MainWindow()
         {
+            System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
             InitializeComponent();
             Loaded += MainWindow_Loaded;
             LeftColumn.MouseLeftButtonUp += LeftColumn_MouseLeftButtonUp;
@@ -242,9 +244,46 @@ namespace ColumnExplorer.Views
             {
                 RightColumnLabel.Text = selectedItem.Content.ToString();
                 RightColumnPath = selectedItem.Tag?.ToString() ?? string.Empty;
+
+                // テキストファイルの場合、右カラムにプレビューを表示
+                if (RightColumnPath != null && File.Exists(RightColumnPath))
+                {
+                    var extension = Path.GetExtension(RightColumnPath).ToLower();
+                    if (extension == ".txt")
+                    {
+                        TextFilePreviewer.PreviewTextFile(RightColumn, RightColumnPath);
+                    }
+                    else if (extension == ".docx")
+                    {
+                        WordFilePreviewer.PreviewWordFile(RightColumn, RightColumnPath);
+                    }
+                    else if (extension == ".pptx")
+                    {
+                        var stackPanel = new StackPanel();
+                        var slides = PowerPointFilePreviewer.GetSlidesAsBitmaps(RightColumnPath, TimeSpan.FromMinutes(1), 100 * 1024 * 1024); // 100MB memory limit
+                        RightColumn.Items.Clear();
+                        foreach (var slide in slides)
+                        {
+                            var image = new Image
+                            {
+                                Source = PowerPointFilePreviewer.ConvertBitmapToBitmapImage(slide),
+                                Margin = new Thickness(5)
+                            };
+                            stackPanel.Children.Add(image);
+                        }
+                        RightColumn.Items.Add(new ListBoxItem { Content = stackPanel });
+                    }
+                    else if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".bmp" || extension == ".gif" || extension == ".heic" || extension == ".webp")
+                    {
+                        var imageControl = new Image();
+                        ImageFilePreviewer.PreviewImageFile(imageControl, RightColumnPath);
+                        RightColumn.Items.Clear();
+                        RightColumn.Items.Add(new ListBoxItem { Content = imageControl });
+                    }
+                }
             }
         }
-
+        
         /// <summary>
         /// キーが押されたときに呼び出されるイベントハンドラー。
         /// </summary>
@@ -290,6 +329,19 @@ namespace ColumnExplorer.Views
             {
                 LoadAllContent(CenterColumnPath);
             }
+            else if (e.Key == Key.A && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + A
+            {
+                SelectAllItems();
+            }
+        }
+
+        /// <summary>
+        /// CenterColumnの全アイテムを選択します。
+        /// </summary>
+        private void SelectAllItems()
+        {
+            CenterColumn.SelectAll();
+            UpdateRightColumnWithSelectedItems();
         }
 
         /// <summary>
