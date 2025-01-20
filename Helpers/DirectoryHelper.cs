@@ -32,7 +32,6 @@ namespace ColumnExplorer.Helpers
         /// </summary>
         /// <param name="listBox">内容を表示するListBox。</param>
         /// <param name="path">読み込むディレクトリのパス。</param>
-        /// <param name="isDirectory">ディレクトリかどうか。</param>
         public static void LoadDirectoryContent(ListBox listBox, string path)
         {
             listBox.Items.Clear();
@@ -42,12 +41,20 @@ namespace ColumnExplorer.Helpers
                 {
                     foreach (var dir in Directory.GetDirectories(path))
                     {
-                        listBox.Items.Add(CreateListBoxItem(Path.GetFileName(dir), dir, true));
+                        var dirInfo = new DirectoryInfo(dir);
+                        if ((dirInfo.Attributes & FileAttributes.Hidden) == 0 && !dirInfo.Name.StartsWith("."))
+                        {
+                            listBox.Items.Add(CreateListBoxItem(Path.GetFileName(dir), dir, true));
+                        }
                     }
 
                     foreach (var file in Directory.GetFiles(path))
                     {
-                        listBox.Items.Add(CreateListBoxItem(Path.GetFileName(file), file, false));
+                        var fileInfo = new FileInfo(file);
+                        if ((fileInfo.Attributes & FileAttributes.Hidden) == 0 && !fileInfo.Name.StartsWith("."))
+                        {
+                            listBox.Items.Add(CreateListBoxItem(Path.GetFileName(file), file, false));
+                        }
                     }
                 }
                 catch (UnauthorizedAccessException ex)
