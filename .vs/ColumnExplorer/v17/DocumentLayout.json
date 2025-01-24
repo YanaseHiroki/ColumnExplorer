@@ -1,18 +1,10 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\",
+  "WorkspaceRootPath": "C:\\Users\\mamor\\source\\repos\\YanaseHiroki\\ColumnExplorer\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{19CA9151-136B-4518-A093-BE209701449D}|ColumnExplorer.csproj|c:\\users\\mamor\\source\\repos\\columnexplorer\\views\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{19CA9151-136B-4518-A093-BE209701449D}|ColumnExplorer.csproj|c:\\users\\mamor\\source\\repos\\yanasehiroki\\columnexplorer\\views\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{19CA9151-136B-4518-A093-BE209701449D}|ColumnExplorer.csproj|solutionrelative:views\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{19CA9151-136B-4518-A093-BE209701449D}|ColumnExplorer.csproj|c:\\users\\mamor\\source\\repos\\columnexplorer\\helpers\\directoryhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{19CA9151-136B-4518-A093-BE209701449D}|ColumnExplorer.csproj|solutionrelative:helpers\\directoryhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{19CA9151-136B-4518-A093-BE209701449D}|ColumnExplorer.csproj|c:\\users\\mamor\\source\\repos\\columnexplorer\\views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
-      "RelativeMoniker": "D:0:0:{19CA9151-136B-4518-A093-BE209701449D}|ColumnExplorer.csproj|solutionrelative:views\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -21,7 +13,7 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 154,
+          "DockedWidth": 432,
           "SelectedChildIndex": -1,
           "Children": [
             {
@@ -39,48 +31,26 @@
           ]
         },
         {
-          "DockedWidth": 391,
-          "SelectedChildIndex": 1,
+          "DockedWidth": 863,
+          "SelectedChildIndex": 0,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "MainWindow.xaml",
-              "DocumentMoniker": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\Views\\MainWindow.xaml",
-              "RelativeDocumentMoniker": "Views\\MainWindow.xaml",
-              "ToolTip": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\Views\\MainWindow.xaml",
-              "RelativeToolTip": "Views\\MainWindow.xaml",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2025-01-11T14:43:10.845Z",
-              "IsPinned": true,
-              "EditorCaption": ""
-            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
               "Title": "MainWindow.xaml.cs",
-              "DocumentMoniker": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\Views\\MainWindow.xaml.cs",
+              "DocumentMoniker": "C:\\Users\\mamor\\source\\repos\\YanaseHiroki\\ColumnExplorer\\Views\\MainWindow.xaml.cs",
               "RelativeDocumentMoniker": "Views\\MainWindow.xaml.cs",
-              "ToolTip": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\Views\\MainWindow.xaml.cs",
+              "ToolTip": "C:\\Users\\mamor\\source\\repos\\YanaseHiroki\\ColumnExplorer\\Views\\MainWindow.xaml.cs",
               "RelativeToolTip": "Views\\MainWindow.xaml.cs",
-              "ViewState": "AgIAAEIAAAAAAAAAAAAgwGAAAAA6AAAAAAAAAA==",
+              "ViewState": "AgIAAAUBAAAAAAAAAAAgwBIBAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-01-11T14:43:09.232Z",
               "IsPinned": true,
               "EditorCaption": ""
             },
             {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "DirectoryHelper.cs",
-              "DocumentMoniker": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\Helpers\\DirectoryHelper.cs",
-              "RelativeDocumentMoniker": "Helpers\\DirectoryHelper.cs",
-              "ToolTip": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\Helpers\\DirectoryHelper.cs",
-              "RelativeToolTip": "Helpers\\DirectoryHelper.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwBMAAAAiAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-15T05:38:32.484Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{0ad07096-bba9-4900-a651-0598d26f6d24}"
             }
           ]
         }

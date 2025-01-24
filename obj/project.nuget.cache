@@ -1,8 +1,18 @@
 {
   "version": 2,
-  "dgSpecHash": "bRz42NiBcjQ=",
+  "dgSpecHash": "rTIkhoVAAJs=",
   "success": true,
-  "projectFilePath": "C:\\Users\\mamor\\source\\repos\\ColumnExplorer\\ColumnExplorer.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "C:\\Users\\mamor\\source\\repos\\YanaseHiroki\\ColumnExplorer\\ColumnExplorer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\mamor\\.nuget\\packages\\documentformat.openxml\\3.2.0\\documentformat.openxml.3.2.0.nupkg.sha512",
+    "C:\\Users\\mamor\\.nuget\\packages\\documentformat.openxml.framework\\3.2.0\\documentformat.openxml.framework.3.2.0.nupkg.sha512",
+    "C:\\Users\\mamor\\.nuget\\packages\\magick.net-q8-anycpu\\14.4.0\\magick.net-q8-anycpu.14.4.0.nupkg.sha512",
+    "C:\\Users\\mamor\\.nuget\\packages\\magick.net.core\\14.4.0\\magick.net.core.14.4.0.nupkg.sha512",
+    "C:\\Users\\mamor\\.nuget\\packages\\microsoft.win32.systemevents\\9.0.1\\microsoft.win32.systemevents.9.0.1.nupkg.sha512",
+    "C:\\Users\\mamor\\.nuget\\packages\\nunit\\4.3.2\\nunit.4.3.2.nupkg.sha512",
+    "C:\\Users\\mamor\\.nuget\\packages\\nunit3testadapter\\4.6.0\\nunit3testadapter.4.6.0.nupkg.sha512",
+    "C:\\Users\\mamor\\.nuget\\packages\\system.drawing.common\\9.0.1\\system.drawing.common.9.0.1.nupkg.sha512",
+    "C:\\Users\\mamor\\.nuget\\packages\\system.io.packaging\\8.0.1\\system.io.packaging.8.0.1.nupkg.sha512"
+  ],
   "logs": []
 }
