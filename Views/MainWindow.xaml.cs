@@ -280,6 +280,11 @@ namespace ColumnExplorer.Views
                         RightColumn.Items.Clear();
                         RightColumn.Items.Add(new ListBoxItem { Content = imageControl });
                     }
+                    // PDFファイルの場合
+                    else if (extension == ".pdf")
+                    {
+                        PdfFilePreviewer.PreviewPdfFile(RightColumn, RightColumnPath);
+                    }
                 }
             }
         }
