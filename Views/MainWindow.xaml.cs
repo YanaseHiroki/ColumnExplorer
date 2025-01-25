@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using ColumnExplorer.Helpers;
+using ColumnExplorer.Previewers;
 
 namespace ColumnExplorer.Views
 {
@@ -54,6 +55,7 @@ namespace ColumnExplorer.Views
 
                     // Select the clicked item in the center column
                     SelectItemInColumn(CenterColumn, selectedItemPath);
+                    CenterColumn.Focus();
                 }
             }
         }
@@ -77,6 +79,7 @@ namespace ColumnExplorer.Views
                     RightColumnLabel.Text = string.Empty;
                     // Display the content of the selected item in the center column
                     LoadAllContent(selectedItemPath);
+                    CenterColumn.Focus();
                 }
             }
         }
