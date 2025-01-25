@@ -6,32 +6,42 @@ using System.Windows.Media;
 namespace ColumnExplorer.Helpers
 {
     /// <summary>
-    /// ディレクトリ操作に関するヘルパーメソッドを提供する静的クラス。
+    /// Static class that provides helper methods for directory operations.
     /// </summary>
     public static class DirectoryHelper
     {
         /// <summary>
-        /// 指定されたパラメータに基づいてListBoxItemを作成します。
+        /// Creates a ListBoxItem based on the specified parameters.
         /// </summary>
-        /// <param name="displayName">表示名。</param>
-        /// <param name="path">アイテムのパス。</param>
-        /// <param name="isDirectory">ディレクトリかどうか。</param>
-        /// <returns>作成されたListBoxItem。</returns>
+        /// <param name="displayName">The display name.</param>
+        /// <param name="path">The path of the item.</param>
+        /// <param name="isDirectory">Whether the item is a directory.</param>
+        /// <returns>The created ListBoxItem.</returns>
         public static ListBoxItem CreateListBoxItem(string displayName, string path, bool isDirectory)
         {
+            var textBlock = new TextBlock
+            {
+                Text = displayName,
+                Foreground = isDirectory ? Brushes.Blue : Brushes.Black
+            };
+
+            if (isDirectory)
+            {
+                textBlock.TextDecorations = TextDecorations.Underline;
+            }
+
             return new ListBoxItem
             {
-                Content = displayName,
-                Tag = path,
-                Foreground = isDirectory ? Brushes.Blue : Brushes.Black
+                Content = textBlock,
+                Tag = path
             };
         }
 
         /// <summary>
-        /// 指定されたディレクトリの内容をListBoxに読み込みます。
+        /// Loads the content of the specified directory into the ListBox.
         /// </summary>
-        /// <param name="listBox">内容を表示するListBox。</param>
-        /// <param name="path">読み込むディレクトリのパス。</param>
+        /// <param name="listBox">The ListBox to display the content.</param>
+        /// <param name="path">The path of the directory to load.</param>
         public static void LoadDirectoryContent(ListBox listBox, string path)
         {
             listBox.Items.Clear();

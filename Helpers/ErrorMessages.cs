@@ -1,61 +1,61 @@
 namespace ColumnExplorer.Helpers
 {
     /// <summary>
-    /// エラーメッセージを定義する列挙型。
+    /// Enum that defines error messages.
     /// </summary>
     public enum ErrorMessages
     {
         /// <summary>
-        /// アクセスが拒否されたことを示すエラーメッセージ。
+        /// Error message indicating access is denied.
         /// </summary>
         Unauthorized,
 
         /// <summary>
-        /// ファイルが見つからないことを示すエラーメッセージ。
+        /// Error message indicating file not found.
         /// </summary>
         FileNotFound,
 
         /// <summary>
-        /// ディレクトリが見つからないことを示すエラーメッセージ。
+        /// Error message indicating directory not found.
         /// </summary>
         DirectoryNotFound,
 
         /// <summary>
-        /// パスが長すぎることを示すエラーメッセージ。
+        /// Error message indicating path is too long.
         /// </summary>
         PathTooLong,
 
         /// <summary>
-        /// 一般的な入出力エラーを示すエラーメッセージ。
+        /// Error message indicating a general I/O error.
         /// </summary>
         IOError,
 
         /// <summary>
-        /// 無効なパスを示すエラーメッセージ。
+        /// Error message indicating an invalid path.
         /// </summary>
         InvalidPath,
 
         /// <summary>
-        /// ディスクがいっぱいであることを示すエラーメッセージ。
+        /// Error message indicating the disk is full.
         /// </summary>
         DiskFull,
 
         /// <summary>
-        /// ファイルが他のプロセスによって使用されていることを示すエラーメッセージ。
+        /// Error message indicating the file is being used by another process.
         /// </summary>
         SharingViolation
     }
 
     /// <summary>
-    /// ErrorMessages 列挙型の拡張メソッドを提供する静的クラス。
+    /// Static class that provides extension methods for the ErrorMessages enum.
     /// </summary>
     public static class ErrorMessagesExtensions
     {
         /// <summary>
-        /// ErrorMessages 列挙型の値に対応するエラーメッセージを取得します。
+        /// Gets the error message corresponding to the value of the ErrorMessages enum.
         /// </summary>
-        /// <param name="errorMessage">ErrorMessages 列挙型の値。</param>
-        /// <returns>エラーメッセージ。</returns>
+        /// <param name="errorMessage">The value of the ErrorMessages enum.</param>
+        /// <returns>The error message.</returns>
         public static string GetMessage(this ErrorMessages errorMessage)
         {
             return errorMessage switch

@@ -6,15 +6,15 @@ using ImageMagick;
 namespace ColumnExplorer.Helpers
 {
     /// <summary>
-    /// 画像ファイルのプレビューを表示するためのヘルパークラス。
+    /// Helper class for displaying image file previews.
     /// </summary>
     public static class ImageFilePreviewer
     {
         /// <summary>
-        /// 指定された画像ファイルの内容をImageコントロールに表示します。
+        /// Displays the content of the specified image file in the Image control.
         /// </summary>
-        /// <param name="imageControl">内容を表示するImageコントロール。</param>
-        /// <param name="filePath">読み込む画像ファイルのパス。</param>
+        /// <param name="imageControl">The Image control to display the content.</param>
+        /// <param name="filePath">The path of the image file to load.</param>
         public static void PreviewImageFile(Image imageControl, string filePath)
         {
             if (File.Exists(filePath))
@@ -53,7 +53,7 @@ namespace ColumnExplorer.Helpers
                 }
                 catch (IOException ex)
                 {
-                    // エラーメッセージの表示など、必要なエラーハンドリングを追加
+                    // Add necessary error handling, such as displaying an error message
                     imageControl.Source = null;
                 }
             }

@@ -5,7 +5,7 @@ using System.Windows.Controls;
 namespace ColumnExplorer.Helpers
 {
     /// <summary>
-    /// テキストファイルのプレビューを表示するためのヘルパークラス。
+    /// Helper class for displaying text file previews.
     /// </summary>
     public static class TextFilePreviewer
     {
@@ -23,7 +23,7 @@ namespace ColumnExplorer.Helpers
                 try
                 {
                     var encoding = DetectEncoding(filePath);
-                    var lines = ReadLinesWithTimeout(filePath, encoding, TimeSpan.FromSeconds(1), 1024 * 1024); // 1秒または1MBで打ち切る
+                    var lines = ReadLinesWithTimeout(filePath, encoding, TimeSpan.FromSeconds(1), 1024 * 1024); // Timeout after 1 second or 1MB
                     foreach (var line in lines)
                     {
                         listBox.Items.Add(new ListBoxItem { Content = line });
@@ -65,14 +65,14 @@ namespace ColumnExplorer.Helpers
                 // Additional encodings
                 var encodings = new[]
                 {
-                        Encoding.GetEncoding("shift-jis"),
-                        Encoding.GetEncoding("iso-2022-jp"),
-                        Encoding.GetEncoding("euc-jp"),
-                        Encoding.GetEncoding("gb2312"),
-                        Encoding.GetEncoding("big5"),
-                        Encoding.GetEncoding("iso-8859-1"),
-                        Encoding.GetEncoding("windows-1252")
-                    };
+                            Encoding.GetEncoding("shift-jis"),
+                            Encoding.GetEncoding("iso-2022-jp"),
+                            Encoding.GetEncoding("euc-jp"),
+                            Encoding.GetEncoding("gb2312"),
+                            Encoding.GetEncoding("big5"),
+                            Encoding.GetEncoding("iso-8859-1"),
+                            Encoding.GetEncoding("windows-1252")
+                        };
 
                 foreach (var encoding in encodings)
                 {

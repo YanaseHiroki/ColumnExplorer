@@ -8,15 +8,15 @@ using iText.Kernel.Pdf.Canvas.Parser;
 namespace ColumnExplorer.Helpers
 {
     /// <summary>
-    /// PDFファイルのプレビューを表示するためのヘルパークラス。
+    /// Helper class for displaying PDF file previews.
     /// </summary>
     public static class PdfFilePreviewer
     {
         /// <summary>
-        /// 指定されたPDFファイルを読み込み、リストボックスにプレビューを表示します。
+        /// Loads the specified PDF file and displays a preview in the ListBox.
         /// </summary>
-        /// <param name="listBox">プレビューを表示するリストボックス。</param>
-        /// <param name="filePath">プレビューするPDFファイルのパス。</param>
+        /// <param name="listBox">The ListBox to display the preview.</param>
+        /// <param name="filePath">The path of the PDF file to preview.</param>
         public static void PreviewPdfFile(ListBox listBox, string filePath)
         {
             listBox.Items.Clear();
@@ -24,7 +24,7 @@ namespace ColumnExplorer.Helpers
             {
                 try
                 {
-                    var lines = ReadLinesWithTimeout(filePath, TimeSpan.FromSeconds(5), 1024 * 1024); // タイムアウトを5秒に設定
+                    var lines = ReadLinesWithTimeout(filePath, TimeSpan.FromSeconds(5), 1024 * 1024); // Set timeout to 5 seconds
                     foreach (var line in lines)
                     {
                         listBox.Items.Add(new ListBoxItem { Content = line });
@@ -42,12 +42,12 @@ namespace ColumnExplorer.Helpers
         }
 
         /// <summary>
-        /// 指定されたPDFファイルを読み込み、タイムアウトと最大バイト数を考慮してテキストを抽出します。
+        /// Loads the specified PDF file and extracts text considering timeout and maximum bytes.
         /// </summary>
-        /// <param name="filePath">読み込むPDFファイルのパス。</param>
-        /// <param name="timeout">タイムアウトの時間。</param>
-        /// <param name="maxBytes">最大バイト数。</param>
-        /// <returns>抽出されたテキストの列挙。</returns>
+        /// <param name="filePath">The path of the PDF file to load.</param>
+        /// <param name="timeout">The timeout duration.</param>
+        /// <param name="maxBytes">The maximum number of bytes.</param>
+        /// <returns>An enumerable of extracted text.</returns>
         private static IEnumerable<string> ReadLinesWithTimeout(string filePath, TimeSpan timeout, int maxBytes)
         {
             var lines = new List<string>();
@@ -87,15 +87,15 @@ namespace ColumnExplorer.Helpers
         }
 
         /// <summary>
-        /// 指定されたPDFページからテキストを抽出します。
+        /// Extracts text from the specified PDF page.
         /// </summary>
-        /// <param name="pdfPage">テキストを抽出するPDFページ。</param>
-        /// <returns>抽出されたテキスト。</returns>
+        /// <param name="pdfPage">The PDF page to extract text from.</param>
+        /// <returns>The extracted text.</returns>
         private static string ExtractTextFromPage(PdfPage pdfPage)
         {
             var text = PdfTextExtractor.GetTextFromPage(pdfPage);
 
-            // デバッグ用に抽出されたテキストをコンソールに出力
+            // Output the extracted text to the console for debugging
             Console.WriteLine($"Extracted text from page: {text}");
 
             return text;

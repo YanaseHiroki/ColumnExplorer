@@ -7,9 +7,9 @@ namespace ColumnExplorer.Helpers
     public static class ContentLoader
     {
         /// <summary>
-        /// ドライブのリストをListBoxに追加します。
+        /// Adds a list of drives to the ListBox.
         /// </summary>
-        /// <param name="listBox">ドライブを追加するListBox。</param>
+        /// <param name="listBox">The ListBox to add the drives to.</param>
         public static void AddDrives(ListBox listBox)
         {
             listBox.Items.Clear();
@@ -23,15 +23,15 @@ namespace ColumnExplorer.Helpers
         }
 
         /// <summary>
-        /// 指定されたディレクトリのサブディレクトリとファイルをListBoxに追加します。
+        /// Adds the subdirectories and files of the specified directory to the ListBox.
         /// </summary>
-        /// <param name="listBox">サブディレクトリとファイルを追加するListBox。</param>
-        /// <param name="directoryPath">ディレクトリのパス。</param>
+        /// <param name="listBox">The ListBox to add the subdirectories and files to.</param>
+        /// <param name="directoryPath">The path of the directory.</param>
         public static void loadItems(ListBox listBox, string? directoryPath)
         {
             listBox.Items.Clear();
             if (directoryPath != null)
-                {
+            {
                 foreach (var dir in Directory.GetDirectories(directoryPath))
                 {
                     listBox.Items.Add(DirectoryHelper.CreateListBoxItem(Path.GetFileName(dir), dir, true));

@@ -7,10 +7,15 @@ using DocumentFormat.OpenXml.Packaging;
 namespace ColumnExplorer.Helpers
 {
     /// <summary>
-    /// Wordファイルのプレビューを表示するためのヘルパークラス。
+    /// Helper class for displaying Word file previews.
     /// </summary>
     public static class WordFilePreviewer
     {
+        /// <summary>
+        /// Loads the specified Word file and displays a preview in the ListBox.
+        /// </summary>
+        /// <param name="listBox">The ListBox to display the preview.</param>
+        /// <param name="filePath">The path of the Word file to preview.</param>
         public static void PreviewWordFile(ListBox listBox, string filePath)
         {
             listBox.Items.Clear();
@@ -35,6 +40,13 @@ namespace ColumnExplorer.Helpers
             }
         }
 
+        /// <summary>
+        /// Reads lines from the specified Word file with a timeout and maximum byte limit.
+        /// </summary>
+        /// <param name="filePath">The path of the Word file to read.</param>
+        /// <param name="timeout">The timeout duration.</param>
+        /// <param name="maxBytes">The maximum number of bytes to read.</param>
+        /// <returns>An enumerable of extracted text lines.</returns>
         private static IEnumerable<string> ReadLinesWithTimeout(string filePath, TimeSpan timeout, int maxBytes)
         {
             var lines = new List<string>();

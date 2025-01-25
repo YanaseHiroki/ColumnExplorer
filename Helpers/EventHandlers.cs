@@ -4,17 +4,17 @@ using System.Windows.Controls;
 namespace ColumnExplorer.Helpers
 {
     /// <summary>
-    /// 各種イベントハンドラーを提供する静的クラス。
+    /// Static class that provides various event handlers.
     /// </summary>
     public static class EventHandlers
     {
         /// <summary>
-        /// centerColumnの選択が変更されたときに呼び出されるイベントハンドラー。
-        /// 選択されたディレクトリの内容をrightColumnに表示します。
+        /// Event handler called when the selection in the centerColumn changes.
+        /// Displays the content of the selected directory in the rightColumn.
         /// </summary>
-        /// <param name="sender">イベントを発生させたオブジェクト。</param>
-        /// <param name="e">イベントデータ。</param>
-        /// <param name="rightColumn">内容を表示するListBox。</param>
+        /// <param name="sender">The object that raised the event.</param>
+        /// <param name="e">Event data.</param>
+        /// <param name="rightColumn">The ListBox to display the content.</param>
         public static void CenterColumn_SelectionChanged(object sender, SelectionChangedEventArgs e, ListBox rightColumn)
         {
             if (sender is ListBox centerColumn && centerColumn.SelectedItem is ListBoxItem selectedItem)

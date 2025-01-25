@@ -21,7 +21,7 @@ using System.Diagnostics;
 namespace ColumnExplorer.Helpers
 {
     /// <summary>
-    /// PowerPointファイルのプレビューを表示するためのヘルパークラス。
+    /// Helper class for displaying PowerPoint file previews.
     /// </summary>
     public static class PowerPointFilePreviewer
     {
@@ -31,7 +31,7 @@ namespace ColumnExplorer.Helpers
             {
                 try
                 {
-                    var bitmaps = GetSlidesAsBitmaps(filePath, TimeSpan.FromSeconds(10), 500 * 1024 * 1024); // 10秒と500MBの制限
+                    var bitmaps = GetSlidesAsBitmaps(filePath, TimeSpan.FromSeconds(10), 500 * 1024 * 1024); // 10 seconds and 500MB limit
                     if (bitmaps != null && bitmaps.Any())
                     {
                         stackPanel.Children.Clear();
@@ -55,10 +55,10 @@ namespace ColumnExplorer.Helpers
                 }
                 catch (IOException ex)
                 {
-                    // エラーメッセージを右カラムに表示
+                    // Display error message in the right column
                     var errorMessage = new TextBlock
                     {
-                        Text = $"エラー: {ex.Message}",
+                        Text = $"Error: {ex.Message}",
                         Foreground = new SolidColorBrush(Colors.Red),
                         Margin = new System.Windows.Thickness(5)
                     };
@@ -85,12 +85,12 @@ namespace ColumnExplorer.Helpers
                     }
 
                     var slide = slidePart.Slide;
-                    var bitmap = new Bitmap(960, 540); // スライドのサイズに合わせて調整
+                    var bitmap = new Bitmap(960, 540); // Adjust to the size of the slide
                     using (var graphics = Graphics.FromImage(bitmap))
                     {
                         graphics.Clear(System.Drawing.Color.White);
 
-                        // スライドのテキスト内容を描画する処理
+                        // Process to draw the text content of the slide
                         foreach (var shape in slide.Descendants<PresentationShape>())
                         {
                             var textBody = shape.TextBody;
@@ -112,7 +112,7 @@ namespace ColumnExplorer.Helpers
                             }
                         }
 
-                        // スライドの画像内容を描画する処理
+                        // Process to draw the image content of the slide
                         foreach (var picture in slide.Descendants<DocumentFormat.OpenXml.Presentation.Picture>())
                         {
                             var blip = picture.Descendants<DocumentFormat.OpenXml.Drawing.Blip>().FirstOrDefault();
@@ -134,7 +134,7 @@ namespace ColumnExplorer.Helpers
                             }
                         }
 
-                        // スライドの図形内容を描画する処理
+                        // Process to draw the shape content of the slide
                         foreach (var graphicFrame in slide.Descendants<DocumentFormat.OpenXml.Presentation.GraphicFrame>())
                         {
                             var transform = graphicFrame.Transform;
@@ -151,7 +151,7 @@ namespace ColumnExplorer.Helpers
                     }
 
                     bitmaps.Add(bitmap);
-                    memoryUsed += bitmap.Width * bitmap.Height * 4; // おおよそのメモリ使用量を計算
+                    memoryUsed += bitmap.Width * bitmap.Height * 4; // Calculate approximate memory usage
                 }
             }
 
@@ -170,7 +170,7 @@ namespace ColumnExplorer.Helpers
                 bitmapImage.StreamSource = memoryStream;
                 bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapImage.EndInit();
-                bitmapImage.Freeze(); // マルチスレッド環境での使用を可能にするためにフリーズ
+                bitmapImage.Freeze(); // Freeze to allow use in a multi-threaded environment
 
                 return bitmapImage;
             }

@@ -9,22 +9,22 @@ using ColumnExplorer.Helpers;
 namespace ColumnExplorer.Views
 {
     /// <summary>
-    /// MainWindowクラスは、アプリケーションのメインウィンドウを表します。
+    /// Represents the main window of the application.
     /// </summary>
     public partial class MainWindow : Window
     {
-        // ドライブリストを表す文字列
+        // String representing the drive list
         private const string DRIVE = "Drive";
-        // 選択されたアイテムを表す文字列
+        // String representing the selected items
         private const string SELECTED_ITEMS = "Selected Items";
-        // ホームディレクトリ
+        // Home directory
         internal static string _homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         internal string LeftColumnPath = string.Empty;
         internal string CenterColumnPath = string.Empty;
         internal string RightColumnPath = string.Empty;
 
         /// <summary>
-        /// MainWindowクラスの新しいインスタンスを初期化します。
+        /// Initializes a new instance of the MainWindow class.
         /// </summary>
         public MainWindow()
         {
@@ -37,49 +37,52 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// 右カラムの選択が変更されたときに呼び出されるイベントハンドラー。
+        /// Event handler called when the selection in the right column changes.
         /// </summary>
         private void RightColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (RightColumn.SelectedItem is ListBoxItem selectedItem)
             {
-                // 右カラムで選択されているアイテムのパス
+                // Path of the selected item in the right column
                 string? selectedItemPath = selectedItem.Tag?.ToString();
 
-                // アイテムのパスがある場合、中央カラムで選択状態にする
+                // If the item has a path, select it in the center column
                 if (selectedItemPath != null)
                 {
-                    // 右カラムの内容が中央に来るように全体を左にずらす
+                    // Shift all items to the left so that the right column content moves to the center
                     MoveItemsLeft();
 
-                    // クリックされたアイテムを中央カラムで選択状態にする
+                    // Select the clicked item in the center column
                     SelectItemInColumn(CenterColumn, selectedItemPath);
                 }
             }
         }
 
         /// <summary>
-        /// 左カラムのアイテムがクリックされたときに呼び出されるイベントハンドラー。
+        /// Event handler called when an item in the left column is clicked.
         /// </summary>
         private void LeftColumn_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (LeftColumn.SelectedItem is ListBoxItem selectedItem)
             {
-                // 左カラムで選択されているアイテムのパス
+                // Path of the selected item in the left column
                 string? selectedItemPath = selectedItem.Tag?.ToString();
 
-                // アイテムのパスがあり、中央カラムの表示パスと異なるか
+                // If the item has a path and it is different from the center column path
                 if (selectedItemPath != null
                     && !string.Equals(selectedItemPath, CenterColumnPath))
                 {
-                    // 選択されたアイテムの内容を中央カラムに表示
+                    // Clear the right column
+                    RightColumn.Items.Clear();
+                    RightColumnLabel.Text = string.Empty;
+                    // Display the content of the selected item in the center column
                     LoadAllContent(selectedItemPath);
                 }
             }
         }
 
         /// <summary>
-        /// ウィンドウがロードされたときに呼び出されるイベントハンドラー。
+        /// Event handler called when the window is loaded.
         /// </summary>
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
@@ -87,16 +90,15 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// ホームディレクトリの内容を読み込みます。
+        /// Loads the content of the home directory.
         /// </summary>
         internal void LoadHomeDirectory()
         {
             LoadAllContent(_homeDirectory);
         }
 
-
         /// <summary> 
-        /// 指定されたパスの内容を各カラムに読み込みます。
+        /// Loads the content of the specified path into each column.
         /// </summary>
         internal void LoadAllContent(string path)
         {
@@ -104,17 +106,17 @@ namespace ColumnExplorer.Views
             {
                 CenterColumnPath = path;
 
-                // 中央のパスがない場合、左：なし、中央：ドライブリスト、右：選択されたアイテム
+                // If the center path is empty, display drive list in the center column
                 if (string.IsNullOrEmpty(CenterColumnPath))
                 {
-                    // 中央にドライブリストを表示
+                    // Display drive list in the center column
                     ContentLoader.AddDrives(CenterColumn);
                     CenterColumnLabel.Text = DRIVE;
                 }
-                // 中央のパスがある場合、左：親ディレクトリ、中央：パスの内容、右：選択されたアイテム
+                // If the center path is not empty, display the content of the path in the center column
                 else
                 {
-                    // 中央にフォルダーの内容を表示
+                    // Display the content of the folder in the center column
                     DirectoryHelper.LoadDirectoryContent(CenterColumn, CenterColumnPath);
                     CenterColumnLabel.Text = GetLabel(CenterColumnPath);
                 }
@@ -125,71 +127,70 @@ namespace ColumnExplorer.Views
                 throw;
             }
 
-            // 左カラム
+            // Left column
             if (CenterColumnPath != string.Empty)
             {
-                // 中央カラムの親ディレクトリを取得して左カラムのパスとする
+                // Get the parent directory of the center column path and set it as the left column path
                 LeftColumnPath = Directory.GetParent(CenterColumnPath)?.FullName;
                 LeftColumnPath = (LeftColumnPath == null) ? string.Empty : LeftColumnPath;
 
                 if (string.IsNullOrEmpty(LeftColumnPath))
                 {
-                    // ドライブリストを表示
+                    // Display drive list
                     ContentLoader.AddDrives(LeftColumn);
                     LeftColumnLabel.Text = DRIVE;
                 }
                 else
                 {
-                    // フォルダーの内容を表示
+                    // Display the content of the folder
                     DirectoryHelper.LoadDirectoryContent(LeftColumn, LeftColumnPath);
                     LeftColumnLabel.Text = GetLabel(LeftColumnPath);
                 }
 
                 if (LeftColumn.Items.Count > 0 && CenterColumnPath != null)
                 {
-                    // 中央のパスを左カラムで選択状態にする
+                    // Select the center column path in the left column
                     SelectItemInColumn(LeftColumn, CenterColumnPath);
                 }
             }
 
-            // 中央カラムで1番目のアイテムを選択状態にする
+            // Select the first item in the center column
             FocusSelectedItemInCenterColumn(string.Empty);
         }
 
-
         /// <summary>
-        /// 中央カラムで選択状態のアイテムにフォーカスを当て、必要に応じて右カラムにその内容を表示します。
+        /// Focuses on the selected item in the center column and displays its content in the right column if necessary.
         /// </summary>
-        /// <param name="targetItem">フォーカスを当てる対象アイテムのパス。nullまたは空の場合、右カラムのパスを使用します。</param>
+        /// <param name="targetItem">The path of the item to focus on. If null or empty, the right column path is used.</param>
         private void FocusSelectedItemInCenterColumn(string? targetItem)
         {
-            // 引数の対象アイテムがない場合
+            // If the target item is not specified
             if (string.IsNullOrEmpty(targetItem))
             {
-                // 右カラムのパスを中央で選択状態にする
+                // Select the right column path in the center column
                 SelectItemInColumn(CenterColumn, RightColumnPath);
             }
-            // 引数の対象アイテムがある場合
+            // If the target item is specified
             else
             {
-                // 対象アイテムを選択状態にする
+                // Select the target item
                 SelectItemInColumn(CenterColumn, targetItem);
             }
 
-            // 中央で選択されたアイテムがフォルダーであれば、その内容を右カラムに表示
+            // If the selected item in the center column is a folder, display its content in the right column
             if (CenterColumn.SelectedItem is ListBoxItem selectedItem)
             {
                 string? itemPath = selectedItem.Tag?.ToString();
                 if (itemPath != null && Directory.Exists(itemPath))
                 {
-                    // 右カラムにフォルダーの内容を表示
+                    // Display the content of the folder in the right column
                     DirectoryHelper.LoadDirectoryContent(RightColumn, itemPath);
                     RightColumnLabel.Text = GetLabel(itemPath);
                     RightColumnPath = itemPath;
                 }
             }
 
-            // 中央カラムで選択状態のアイテムにフォーカスを当てる
+            // Focus on the selected item in the center column
             if (CenterColumn.SelectedItem is ListBoxItem selectedListBoxItem)
             {
                 selectedListBoxItem.Focus();
@@ -197,13 +198,13 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// 指定されたパスに一致するアイテムをカラム内で選択状態にします。
+        /// Selects the item in the column that matches the specified path.
         /// </summary>
-        /// <param name="column">アイテムを選択する対象のListBox。</param>
-        /// <param name="path">選択するアイテムのパス。</param>
+        /// <param name="column">The ListBox to select the item in.</param>
+        /// <param name="path">The path of the item to select.</param>
         internal void SelectItemInColumn(ListBox column, string path)
         {
-            //　選択対象のパスがない場合、1つ目のアイテムを選択
+            // If the path is not specified, select the first item
             if (string.IsNullOrEmpty(path))
             {
                 column.SelectedIndex = 0;
@@ -211,7 +212,7 @@ namespace ColumnExplorer.Views
             }
             else
 
-            // 対象カラムに候補のアイテムがあるか検索
+            // Search for the item in the column
             if (column.Items.Count > 0)
             {
                 foreach (var item in column.Items)
@@ -225,7 +226,7 @@ namespace ColumnExplorer.Views
                     }
                 }
 
-                // 検索して見つからない場合、1番目のアイテムを選択
+                // If the item is not found, select the first item
                 if (column.SelectedItem == null && column.Items.Count > 0)
                 {
                     column.SelectedIndex = 0;
@@ -235,17 +236,24 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// 中央カラムの選択が変更されたときに呼び出されるイベントハンドラー。
+        /// Event handler called when the selection in the center column changes.
         /// </summary>
         private void CenterColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             EventHandlers.CenterColumn_SelectionChanged(sender, e, RightColumn);
             if (CenterColumn.SelectedItem is ListBoxItem selectedItem)
             {
-                RightColumnLabel.Text = selectedItem.Content.ToString();
+                if (selectedItem.Content is TextBlock textBlock)
+                {
+                    RightColumnLabel.Text = textBlock.Text;
+                }
+                else
+                {
+                    RightColumnLabel.Text = selectedItem.Content.ToString();
+                }
                 RightColumnPath = selectedItem.Tag?.ToString() ?? string.Empty;
 
-                // テキストファイルの場合、右カラムにプレビューを表示
+                // If the selected item is a text file, display a preview in the right column
                 if (RightColumnPath != null && File.Exists(RightColumnPath))
                 {
                     var extension = Path.GetExtension(RightColumnPath).ToLower();
@@ -280,7 +288,7 @@ namespace ColumnExplorer.Views
                         RightColumn.Items.Clear();
                         RightColumn.Items.Add(new ListBoxItem { Content = imageControl });
                     }
-                    // PDFファイルの場合
+                    // If the selected item is a PDF file, display a preview in the right column
                     else if (extension == ".pdf")
                     {
                         PdfFilePreviewer.PreviewPdfFile(RightColumn, RightColumnPath);
@@ -288,9 +296,9 @@ namespace ColumnExplorer.Views
                 }
             }
         }
-        
+
         /// <summary>
-        /// キーが押されたときに呼び出されるイベントハンドラー。
+        /// Event handler called when a key is pressed.
         /// </summary>
         protected override void OnKeyDown(KeyEventArgs e)
         {
@@ -338,10 +346,18 @@ namespace ColumnExplorer.Views
             {
                 SelectAllItems();
             }
+            else if (e.Key == Key.W && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + W
+            {
+                Close(); // Close the application
+            }
+            else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + C
+            {
+                ClipboardHelper.CopySelectedItemsToClipboard(CenterColumn.SelectedItems); // Copy selected items to clipboard
+            }
         }
 
         /// <summary>
-        /// CenterColumnの全アイテムを選択します。
+        /// Selects all items in the CenterColumn.
         /// </summary>
         private void SelectAllItems()
         {
@@ -350,7 +366,7 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// CenterColumnの選択を次のアイテムに移動します。
+        /// Moves the selection in the CenterColumn to the next item.
         /// </summary>
         private void SelectLowerItem()
         {
@@ -361,7 +377,7 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// CenterColumnの選択を前のアイテムに移動します。
+        /// Moves the selection in the CenterColumn to the previous item.
         /// </summary>
         private void SelectUpperItem()
         {
@@ -372,7 +388,7 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// Shiftキーを押しながらCenterColumnの選択を次のアイテムに移動します。
+        /// Moves the selection in the CenterColumn to the next item while holding the Shift key.
         /// </summary>
         private void SelectLowerItemWithShift()
         {
@@ -386,7 +402,7 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// Shiftキーを押しながらCenterColumnの選択を前のアイテムに移動します。
+        /// Moves the selection in the CenterColumn to the previous item while holding the Shift key.
         /// </summary>
         private void SelectUpperItemWithShift()
         {
@@ -400,7 +416,7 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// 右キーが押されたとき中央カラムでディレクトリが選択されていれば、そこに移動します。
+        /// Moves to the subdirectory if a directory is selected in the center column when the right key is pressed.
         /// </summary>
         internal void MoveToSubDirectory()
         {
@@ -416,33 +432,33 @@ namespace ColumnExplorer.Views
 
         private void MoveItemsLeft()
         {
-            // 左カラムに中央カラムの内容を移動
+            // Move the content of the center column to the left column
             MoveItems(CenterColumn, LeftColumn);
             LeftColumnLabel.Text = CenterColumnLabel.Text;
             LeftColumnPath = CenterColumnPath;
 
-            // 中央カラムに右カラムの内容を移動
+            // Move the content of the right column to the center column
             MoveItems(RightColumn, CenterColumn);
             CenterColumnLabel.Text = RightColumnLabel.Text;
             CenterColumnPath = RightColumnPath;
 
-            // 右カラムの内容を消去
+            // Clear the content of the right column
             RightColumnLabel.Text = string.Empty;
             RightColumn.Items.Clear();
 
-            // 左カラムで中央カラムのパスを選択
+            // Select the center column path in the left column
             if (!string.IsNullOrEmpty(CenterColumnPath))
             {
                 SelectItemInColumn(LeftColumn, CenterColumnPath);
             }
 
-            // 中央カラムの１つ目のアイテムを選択
+            // Select the first item in the center column
             if (CenterColumn.Items.Count > 0)
             {
                 CenterColumn.SelectedIndex = 0;
             }
 
-            // 中央カラムで選択状態のアイテムにフォーカスを当てる
+            // Focus on the selected item in the center column
             if (CenterColumn.SelectedItem is ListBoxItem selectedListBoxItem)
             {
                 selectedListBoxItem.Focus();
@@ -450,17 +466,17 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// 左キーが押されたとき親ディレクトリがあれば移動します。
+        /// Moves to the parent directory if it exists when the left key is pressed.
         /// </summary>
         internal void MoveToParentDirectory()
         {
-            // 左カラムに表示されているか
+            // Check if the left column is displaying a directory
             if (Directory.Exists(LeftColumnPath))
             {
                 string? newLeftColumnPath = Directory.GetParent(LeftColumnPath)?.FullName;
                 MoveItemsRignt(newLeftColumnPath);
 
-            // 左カラムにドライブリストが表示されていたか
+            // Check if the left column is displaying the drive list
             } else if (string.Equals(LeftColumnPath, DRIVE))
             {
                 string newLeftColumnPath = string.Empty;
@@ -469,59 +485,59 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// 中央カラムの内容を右カラムに移動し、左カラムの内容を中央カラムに移動します。
-        /// その後、親ディレクトリの内容を左カラムに表示します。
+        /// Moves the content of the center column to the right column and the content of the left column to the center column.
+        /// Then displays the content of the parent directory in the left column.
         /// </summary>
-        /// <param name="parentDirectory">左カラムに表示するディレクトリのパス。</param>
+        /// <param name="parentDirectory">The path of the directory to display in the left column.</param>
         private void MoveItemsRignt(string? newLeftColumnPath)
         {
-            // 右カラムに中央カラムの内容を移動
+            // Move the content of the center column to the right column
             MoveItems(CenterColumn, RightColumn);
             RightColumnLabel.Text = CenterColumnLabel.Text;
             RightColumnPath = CenterColumnPath;
 
-            // 中央カラムに左カラムの内容を移動
+            // Move the content of the left column to the center column
             MoveItems(LeftColumn, CenterColumn);
             CenterColumnLabel.Text = LeftColumnLabel.Text;
             CenterColumnPath = LeftColumnPath;
 
-            // 左カラムに表示
-            // 中央カラムにドライブリストが表示される場合
+            // Display in the left column
+            // If the center column is displaying the drive list
             if (string.Equals(CenterColumnPath, DRIVE))
             {
-                // 左カラムの表示をクリアする
+                // Clear the content of the left column
                 LeftColumn.Items.Clear();
                 LeftColumnLabel.Text = string.Empty;
                 LeftColumnPath = string.Empty;
             }
             else if (!string.Equals(CenterColumnPath, DRIVE) && string.IsNullOrEmpty(newLeftColumnPath))
             {
-                // ドライブリストを表示
+                // Display the drive list
                 ContentLoader.AddDrives(LeftColumn);
                 LeftColumnLabel.Text = DRIVE;
                 LeftColumnPath = DRIVE;
             }
             else
             {
-                // ディレクトリの内容を表示
+                // Display the content of the directory
                 DirectoryHelper.LoadDirectoryContent(LeftColumn, newLeftColumnPath);
                 LeftColumnLabel.Text = GetLabel(newLeftColumnPath);
                 LeftColumnPath = newLeftColumnPath;
             }
 
-            // 右カラムのパスを中央カラムで選択
+            // Select the right column path in the center column
             if (!string.IsNullOrEmpty(RightColumnPath))
             {
                 SelectItemInColumn(CenterColumn, RightColumnPath);
             }
 
-            // 中央カラムのパスを左カラムで選択
+            // Select the center column path in the left column
             if (!string.IsNullOrEmpty(CenterColumnPath))
             {
                 SelectItemInColumn(LeftColumn, CenterColumnPath);
             }
 
-            // 中央カラムで選択状態のアイテムにフォーカスを当てる
+            // Focus on the selected item in the center column
             if (CenterColumn.SelectedItem is ListBoxItem selectedListBoxItem)
             {
                 selectedListBoxItem.Focus();
@@ -529,10 +545,10 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// 指定されたパスに基づいてラベルを取得します。
+        /// Gets the label based on the specified path.
         /// </summary>
-        /// <param name="path">ラベルを取得するパス。</param>
-        /// <returns>パスに基づくラベル。</returns>
+        /// <param name="path">The path to get the label for.</param>
+        /// <returns>The label based on the path.</returns>
         private string GetLabel(string path)
         {
             return (path == System.IO.Path.GetPathRoot(path) || path == DRIVE)
@@ -541,7 +557,7 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// 選択されたアイテムを開きます。
+        /// Opens the selected items.
         /// </summary>
         internal void OpenSelectedItems()
         {
@@ -559,7 +575,7 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// 中央カラムで選択されたアイテムを右カラムに表示します。
+        /// Displays the selected items in the center column in the right column
         /// </summary>
         internal void UpdateRightColumnWithSelectedItems()
         {

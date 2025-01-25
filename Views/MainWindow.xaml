@@ -8,43 +8,52 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <!-- 3つのカラムを定義 -->
+            <!-- Define three columns -->
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- 最初のカラムのフォルダー名表示用TextBlock -->
-        <Border Grid.Column="0" Grid.Row="0" Background="AliceBlue" BorderBrush="Gray" BorderThickness="1,1,1,0">
+        <!-- TextBlock for displaying folder name in the left column -->
+        <Border Grid.Column="0" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0">
             <TextBlock x:Name="LeftColumnLabel" HorizontalAlignment="Center"
-               FontWeight="Bold" Padding="5" FontSize="14" />
+               FontWeight="Bold" Padding="5" FontSize="13" />
         </Border>
 
-        <!-- 最初のカラムのListBox -->
+        <!-- ListBox for the left column -->
         <ListBox x:Name="LeftColumn" Grid.Column="0" Grid.Row="1"
                  SelectionMode="Extended"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False" FontSize="13" />
 
-        <!-- 2番目のカラムのフォルダー名表示用TextBlock -->
-        <Border Grid.Column="1" Grid.Row="0" Background="AliceBlue" BorderBrush="Gray" BorderThickness="1,1,1,0">
+        <!-- GridSplitter between the left and center columns -->
+        <GridSplitter Grid.Column="1" Grid.RowSpan="2" Width="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
+
+        <!-- TextBlock for displaying folder name in the center column -->
+        <Border Grid.Column="2" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0">
             <TextBlock x:Name="CenterColumnLabel" HorizontalAlignment="Center"
-               FontWeight="Bold" Padding="5" FontSize="14" />
+               FontWeight="Bold" Padding="5" FontSize="13" />
         </Border>
-        
-        <!-- 2番目のカラムのListBox。複数選択モードが有効 -->
-        <ListBox x:Name="CenterColumn" Grid.Column="1" Grid.Row="1"
+
+        <!-- ListBox for the center column. Multiple selection mode enabled -->
+        <ListBox x:Name="CenterColumn" Grid.Column="2" Grid.Row="1"
                  SelectionMode="Extended" SelectionChanged="CenterColumn_SelectionChanged"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False" FontSize="13" />
 
-        <!-- 3番目のカラムのフォルダー名表示用TextBlock -->
-        <Border Grid.Column="2" Grid.Row="0" Background="AliceBlue" BorderBrush="Gray" BorderThickness="1,1,1,0">
+        <!-- GridSplitter between the center and right columns -->
+        <GridSplitter Grid.Column="3" Grid.RowSpan="2" Width="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
+
+        <!-- TextBlock for displaying folder name in the right column -->
+        <Border Grid.Column="4" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0">
             <TextBlock x:Name="RightColumnLabel" HorizontalAlignment="Center"
-               FontWeight="Bold" Padding="5" FontSize="14" />
+               FontWeight="Bold" Padding="5" FontSize="13" />
         </Border>
-        <!-- 3番目のカラムのListBox -->
-        <ListBox x:Name="RightColumn" Grid.Column="2" Grid.Row="1"
+
+        <!-- ListBox for the right column -->
+        <ListBox x:Name="RightColumn" Grid.Column="4" Grid.Row="1"
                  SelectionMode="Extended"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                  ScrollViewer.CanContentScroll="False" FontSize="13" />
