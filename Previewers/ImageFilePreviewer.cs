@@ -3,7 +3,7 @@ using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using ImageMagick;
 
-namespace ColumnExplorer.Helpers
+namespace ColumnExplorer.Previewers
 {
     /// <summary>
     /// Helper class for displaying image file previews.
@@ -44,7 +44,7 @@ namespace ColumnExplorer.Helpers
                     {
                         bitmap = new BitmapImage();
                         bitmap.BeginInit();
-                        bitmap.UriSource = new System.Uri(filePath);
+                        bitmap.UriSource = new Uri(filePath);
                         bitmap.CacheOption = BitmapCacheOption.OnLoad;
                         bitmap.EndInit();
                     }

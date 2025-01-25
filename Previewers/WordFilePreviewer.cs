@@ -4,7 +4,7 @@ using System.IO;
 using System.Windows.Controls;
 using DocumentFormat.OpenXml.Packaging;
 
-namespace ColumnExplorer.Helpers
+namespace ColumnExplorer.Previewers
 {
     /// <summary>
     /// Helper class for displaying Word file previews.

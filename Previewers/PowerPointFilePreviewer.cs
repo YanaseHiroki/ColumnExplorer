@@ -18,7 +18,7 @@ using PresentationShape = DocumentFormat.OpenXml.Presentation.Shape;
 using static System.Drawing.Font;
 using System.Diagnostics;
 
-namespace ColumnExplorer.Helpers
+namespace ColumnExplorer.Previewers
 {
     /// <summary>
     /// Helper class for displaying PowerPoint file previews.
@@ -102,7 +102,7 @@ namespace ColumnExplorer.Helpers
                                 var width = transform.Extents.Cx;
                                 var height = transform.Extents.Cy;
 
-                                foreach (var paragraph in textBody.Descendants<DocumentFormat.OpenXml.Drawing.Paragraph>())
+                                foreach (var paragraph in textBody.Descendants<Paragraph>())
                                 {
                                     foreach (var text in paragraph.Descendants<DocumentFormat.OpenXml.Drawing.Text>())
                                     {
@@ -115,7 +115,7 @@ namespace ColumnExplorer.Helpers
                         // Process to draw the image content of the slide
                         foreach (var picture in slide.Descendants<DocumentFormat.OpenXml.Presentation.Picture>())
                         {
-                            var blip = picture.Descendants<DocumentFormat.OpenXml.Drawing.Blip>().FirstOrDefault();
+                            var blip = picture.Descendants<Blip>().FirstOrDefault();
                             if (blip != null)
                             {
                                 var embed = blip.Embed.Value;

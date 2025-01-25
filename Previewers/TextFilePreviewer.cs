@@ -2,7 +2,7 @@ using System.IO;
 using System.Text;
 using System.Windows.Controls;
 
-namespace ColumnExplorer.Helpers
+namespace ColumnExplorer.Previewers
 {
     /// <summary>
     /// Helper class for displaying text file previews.

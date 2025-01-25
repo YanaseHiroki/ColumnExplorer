@@ -5,7 +5,7 @@ using System.Windows.Controls;
 using iText.Kernel.Pdf;
 using iText.Kernel.Pdf.Canvas.Parser;
 
-namespace ColumnExplorer.Helpers
+namespace ColumnExplorer.Previewers
 {
     /// <summary>
     /// Helper class for displaying PDF file previews.
