@@ -14,9 +14,8 @@ namespace ColumnExplorer.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        // String representing the drive list
+        // const string
         private const string DRIVE = "Drive";
-        // String representing the selected items
         private const string SELECTED_ITEMS = "Selected Items";
         // Home directory
         internal static string _homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -355,7 +354,31 @@ namespace ColumnExplorer.Views
             }
             else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + C
             {
-                ClipboardHelper.CopySelectedItemsToClipboard(CenterColumn.SelectedItems); // Copy selected items to clipboard
+                ClipboardHelper.CopySelectedItemsToClipboard(CenterColumn.SelectedItems, RightColumnLabel); // Copy selected items to clipboard
+            }
+            else if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + V
+            {
+                // ListBox that has focus
+                ListBox activeListBox = Keyboard.FocusedElement as ListBox ?? CenterColumn;
+
+                // TextBlock and CurrentPath of the active ListBox
+                TextBlock activeTextBlock = CenterColumnLabel;
+                string currentPath = CenterColumnPath;
+
+                if (activeListBox == LeftColumn)
+                {
+                    activeTextBlock = LeftColumnLabel;
+                    currentPath = LeftColumnPath;
+                }
+                else if (activeListBox == RightColumn)
+                {
+                    activeTextBlock = RightColumnLabel;
+                    currentPath = RightColumnPath;
+                }
+                
+
+                // Paste from clipboard to the active ListBox
+                ClipboardHelper.PasteFromClipboard(activeListBox, activeTextBlock, currentPath);
             }
         }
 
