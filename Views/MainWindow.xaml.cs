@@ -5,7 +5,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using ColumnExplorer.Helpers;
-using System.Collections.Generic;
 
 namespace ColumnExplorer.Views
 {
@@ -251,6 +250,14 @@ namespace ColumnExplorer.Views
                     else if (extension == ".pdf")
                     {
                         PdfFilePreviewer.PreviewPdfFile(RightColumn, RightColumnPath);
+                    }
+                    else
+                    {
+                        // If the selected item is a file with an unsupported extension, display its properties
+                        if (RightColumnPath != null && File.Exists(RightColumnPath))
+                        {
+                            UnsupportedFilePreviewer.PreviewUnsupportedFile(RightColumn, RightColumnPath);
+                        }
                     }
                 }
             }
