@@ -25,6 +25,8 @@ namespace ColumnExplorer.Views
         internal string RightColumnPath = string.Empty;
         // Stack to store the previous directories
         private Stack<string> _previousDirectories = new Stack<string>();
+        // Stack to store the forward directories
+        private Stack<string> _forwardDirectories = new Stack<string>();
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -37,7 +39,7 @@ namespace ColumnExplorer.Views
             Loaded += MainWindow_Loaded;
             LeftColumn.MouseLeftButtonUp += LeftColumn_MouseLeftButtonUp;
             RightColumn.SelectionChanged += RightColumn_SelectionChanged;
-            MouseDown += MainWindow_MouseDown; // event handler for the mouse buttons
+            MouseDown += MainWindow_MouseDown;
         }
 
         /// <summary>
@@ -619,9 +621,13 @@ namespace ColumnExplorer.Views
         /// <param name="e"></param>
         private void MainWindow_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.XButton1 == MouseButtonState.Pressed) // 戻るボタンが押された場合
+            if (e.XButton1 == MouseButtonState.Pressed)
             {
                 MoveToPreviousDirectory();
+            }
+            else if (e.XButton2 == MouseButtonState.Pressed)
+            {
+                MoveToForwardDirectory();
             }
         }
 
@@ -633,6 +639,7 @@ namespace ColumnExplorer.Views
             if (_previousDirectories.Count > 0)
             {
                 string previousDirectory = _previousDirectories.Pop();
+                _forwardDirectories.Push(CenterColumnPath);
                 LoadAllContent(previousDirectory);
             }
         }
@@ -709,5 +716,17 @@ namespace ColumnExplorer.Views
             }
         }
 
+        /// <summary>
+        /// Moves to the forward directory.
+        /// </summary>
+        private void MoveToForwardDirectory()
+        {
+            if (_forwardDirectories.Count > 0)
+            {
+                string forwardDirectory = _forwardDirectories.Pop();
+                _previousDirectories.Push(CenterColumnPath);
+                LoadAllContent(forwardDirectory);
+            }
+        }
     }
 }
