@@ -36,10 +36,26 @@ namespace ColumnExplorer.Views
 
             InitializeComponent();
             Loaded += MainWindow_Loaded;
+            // event handler
             LeftColumn.MouseLeftButtonUp += LeftColumn_MouseLeftButtonUp;
             RightColumn.SelectionChanged += RightColumn_SelectionChanged;
             MouseDown += MainWindow_MouseDown;
+            LeftColumn.PreviewMouseLeftButtonDown += ListBox_PreviewMouseLeftButtonDown;
+            LeftColumn.PreviewMouseLeftButtonUp += ListBox_PreviewMouseLeftButtonUp;
+            LeftColumn.PreviewMouseMove += ListBox_PreviewMouseMove;
+            LeftColumn.Drop += ListBox_Drop;
+            CenterColumn.PreviewMouseLeftButtonDown += ListBox_PreviewMouseLeftButtonDown;
+            CenterColumn.PreviewMouseLeftButtonUp += ListBox_PreviewMouseLeftButtonUp;
+            CenterColumn.PreviewMouseMove += ListBox_PreviewMouseMove;
+            CenterColumn.Drop += ListBox_Drop;
+            RightColumn.PreviewMouseLeftButtonDown += ListBox_PreviewMouseLeftButtonDown;
+            RightColumn.PreviewMouseLeftButtonUp += ListBox_PreviewMouseLeftButtonUp;
+            RightColumn.PreviewMouseMove += ListBox_PreviewMouseMove;
+            RightColumn.Drop += ListBox_Drop;
         }
+
+        //　Starting point of the drag
+        private Point _startPoint;
 
         /// <summary>
         /// Event handler called when the selection in the right column changes.
@@ -733,6 +749,140 @@ namespace ColumnExplorer.Views
                 string forwardDirectory = _forwardDirectories.Pop();
                 _previousDirectories.Push(CenterColumnPath);
                 LoadAllContent(forwardDirectory);
+            }
+        }
+
+        // ドラッグ開始のイベントハンドラ
+        private void ListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _startPoint = e.GetPosition(null);
+        }
+
+        // マウス移動のイベントハンドラ
+        private void ListBox_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            Point mousePos = e.GetPosition(null);
+            Vector diff = _startPoint - mousePos;
+
+            if (e.LeftButton == MouseButtonState.Pressed &&
+                (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                 Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance))
+            {
+                ListBox listBox = sender as ListBox;
+                if (listBox != null)
+                {
+                    ListBoxItem listBoxItem = FindAncestor<ListBoxItem>((DependencyObject)e.OriginalSource);
+                    if (listBoxItem != null)
+                    {
+                        // Ctrlキーが押されているように扱う
+                        if (!listBox.SelectedItems.Contains(listBoxItem))
+                        {
+                            listBoxItem.IsSelected = true;
+                        }
+
+                        // 選択されたすべてのアイテムのパスを取得
+                        var selectedPaths = listBox.SelectedItems.Cast<ListBoxItem>()
+                            .Select(item => item.Tag?.ToString())
+                            .Where(path => !string.IsNullOrEmpty(path))
+                            .ToArray();
+
+                        if (selectedPaths.Length > 0)
+                        {
+                            DragDrop.DoDragDrop(listBoxItem, new DataObject("SelectedPaths", selectedPaths), DragDropEffects.Move);
+                        }
+                    }
+                }
+            }
+        }
+
+        // ドロップのイベントハンドラ
+        private void ListBox_Drop(object sender, DragEventArgs e)
+        {
+            ListBox listBox = sender as ListBox;
+            if (listBox != null && e.Data.GetDataPresent("SelectedPaths"))
+            {
+                string[] sourcePaths = e.Data.GetData("SelectedPaths") as string[];
+
+                // ドロップ先のアイテムを取得
+                Point dropPosition = e.GetPosition(listBox);
+                var targetItem = listBox.InputHitTest(dropPosition) as DependencyObject;
+                var listBoxItem = FindAncestor<ListBoxItem>(targetItem);
+
+                string targetPath = listBoxItem?.Tag?.ToString();
+
+                // ドロップ先がフォルダーでない場合、カラムのパスを使用
+                if (string.IsNullOrEmpty(targetPath))
+                {
+                    if (listBox == LeftColumn)
+                    {
+                        targetPath = LeftColumnPath;
+                    }
+                    else if (listBox == CenterColumn)
+                    {
+                        targetPath = CenterColumnPath;
+                    }
+                    else if (listBox == RightColumn)
+                    {
+                        targetPath = RightColumnPath;
+                    }
+                }
+
+                if (sourcePaths != null && !string.IsNullOrEmpty(targetPath) && Directory.Exists(targetPath))
+                {
+                    foreach (var sourcePath in sourcePaths)
+                    {
+                        string fileName = Path.GetFileName(sourcePath);
+                        string destinationPath = Path.Combine(targetPath, fileName);
+
+                        try
+                        {
+                            File.Move(sourcePath, destinationPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"ファイルの移動中にエラーが発生しました: {ex.Message}");
+                        }
+                    }
+                    LoadAllContent(CenterColumnPath); // コンテンツを再読み込み
+                }
+            }
+        }
+
+        // ヘルパーメソッド: 指定した型の先祖を見つける
+        private static T FindAncestor<T>(DependencyObject current) where T : DependencyObject
+        {
+            while (current != null)
+            {
+                if (current is T)
+                {
+                    return (T)current;
+                }
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return null;
+        }
+        private void ListBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Point endPoint = e.GetPosition(null);
+
+            // ドラッグが発生していない場合にのみ選択を行う
+            if (Math.Abs(_startPoint.X - endPoint.X) <= SystemParameters.MinimumHorizontalDragDistance &&
+                Math.Abs(_startPoint.Y - endPoint.Y) <= SystemParameters.MinimumVerticalDragDistance)
+            {
+                ListBox listBox = sender as ListBox;
+                if (listBox != null)
+                {
+                    ListBoxItem listBoxItem = FindAncestor<ListBoxItem>((DependencyObject)e.OriginalSource);
+                    if (listBoxItem != null)
+                    {
+                        // アイテムが選択されていない場合は選択する
+                        if (!listBox.SelectedItems.Contains(listBoxItem))
+                        {
+                            listBox.SelectedItems.Clear();
+                            listBox.SelectedItem = listBoxItem;
+                        }
+                    }
+                }
             }
         }
     }

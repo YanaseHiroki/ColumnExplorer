@@ -70,7 +70,7 @@ namespace ColumnExplorer.Helpers
                 Text = propertyName,
                 FontWeight = FontWeights.Bold,
                 Margin = new Thickness(5),
-                ToolTip = $"{propertyName} of the file."
+                ToolTip = propertyName
             };
             Grid.SetRow(propertyNameTextBlock, grid.RowDefinitions.Count - 1);
             Grid.SetColumn(propertyNameTextBlock, 0);
@@ -80,7 +80,7 @@ namespace ColumnExplorer.Helpers
             {
                 Text = propertyValue,
                 Margin = new Thickness(5),
-                ToolTip =  propertyName,
+                ToolTip =  GetToolTip(propertyName, propertyValue),
                 IsReadOnly = true,
                 Background = Brushes.Transparent
             };
@@ -120,14 +120,23 @@ namespace ColumnExplorer.Helpers
             else if (bytes >= KB)
                 return $"{bytes / (double)KB:0.##} KB";
             else
-                return $"{bytes} bytes";
+                return $"{bytes} B";
         }
 
         private static string GetToolTip(string property, string value)
         {
-            propertyName == "Extension" ? GetFileDescription(propertyValue) :
-            ToolTip = propertyName == "Attributes" ? GetAttributesDescription(propertyValue) : (propertyName == "Extension" ? GetFileDescription(propertyValue) : propertyValue),
-
+            if (property == "Extension")
+            {
+                return GetFileDescription(value);
+            }
+            else if (property == "Attributes")
+            {
+                return GetAttributesDescription(value);
+            }
+            else
+            {
+                return property;
+            }
         }
 
         /// <summary>
@@ -140,12 +149,12 @@ namespace ColumnExplorer.Helpers
             var descriptions = attributes.Split(',')
                 .Select(attr => attr.Trim() switch
                 {
-                    "Archive" => "This file is marked for backup or archiving.",
+                    "Archive" => "For backup or archiving.",
                     "Compressed" => "This file is compressed.",
                     "Directory" => "This is a directory.",
                     "Encrypted" => "This file is encrypted.",
                     "Hidden" => "This file is hidden.",
-                    "Normal" => "This file has no special attributes.",
+                    "Normal" => "Has no special attributes.",
                     "ReadOnly" => "This file is read-only.",
                     "System" => "This file is a system file.",
                     "Temporary" => "This file is temporary.",
