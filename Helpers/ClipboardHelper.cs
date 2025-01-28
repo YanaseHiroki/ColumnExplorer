@@ -78,8 +78,25 @@ namespace ColumnExplorer.Helpers
                     string fileName = System.IO.Path.GetFileName(sourceFilePath) ?? "FILE_NAME";
                     string targetFilePath = System.IO.Path.Combine(destination, fileName);
 
+                    // Check if the file is in use
+                    if (IsFileInUse(sourceFilePath))
+                    {
+                        MessageBox.Show($"The file '{fileName}' is currently in use and cannot be copied.", "File In Use",
+                            MessageBoxButton.OK, MessageBoxImage.Warning);
+                        continue;
+                    }
+
                     // Copy the file to the destination directory
-                    File.Copy(sourceFilePath, targetFilePath, overwrite: true);
+                    try
+                    {
+                        File.Copy(sourceFilePath, targetFilePath, overwrite: true);
+                    }
+                    catch (IOException ex)
+                    {
+                        MessageBox.Show($"'{fileName}': {ex.Message}", "Copy Error",
+                            MessageBoxButton.OK, MessageBoxImage.Error);
+                        continue;
+                    }
 
                     // Add the file to the ListBox
                     ListBoxItem newItem = new ListBoxItem
@@ -112,6 +129,23 @@ namespace ColumnExplorer.Helpers
                 MessageBox.Show("The clipboard does not contain any files to paste.", "No Files to Paste",
                     MessageBoxButton.OK, MessageBoxImage.Information);
             }
+        }
+
+        private static bool IsFileInUse(string filePath)
+        {
+            try
+            {
+                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    // ファイルが開けた場合、使用中ではない
+                }
+            }
+            catch (IOException)
+            {
+                // IOExceptionが発生した場合、ファイルは使用中
+                return true;
+            }
+            return false;
         }
     }
 }

@@ -26,6 +26,8 @@ namespace ColumnExplorer.Views
         private Stack<string> _previousDirectories = new Stack<string>();
         // Stack to store the forward directories
         private Stack<string> _forwardDirectories = new Stack<string>();
+        // List to store selected paths
+        private List<string> _selectedPaths = new List<string>();
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -56,38 +58,6 @@ namespace ColumnExplorer.Views
 
         //　Starting point of the drag
         private Point _startPoint;
-
-        /// <summary>
-        /// Event handler called when the selection in the right column changes.
-        /// </summary>
-        //private void RightColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        //{
-        //    if (RightColumn.SelectedItem is ListBoxItem selectedItem)
-        //    {
-        //        // Path of the selected item in the right column
-        //        string? selectedItemPath = selectedItem.Tag?.ToString();
-
-        //        // If the item has a path, select it in the center column
-        //        if (selectedItemPath != null)
-        //        {
-
-        //            // Store old center column path
-        //            string? oldPath = CenterColumnPath;
-
-        //            // Shift all items to the left so that the right column content moves to the center
-        //            MoveItemsLeft();
-
-        //            // Select the clicked item in the center column
-        //            SelectItemInColumn(CenterColumn, selectedItemPath);
-
-        //            // Push the old center column path to the stack
-        //            CenterColumn.Focus();
-        //            PushToPreviousDirectories(oldPath);
-        //        }
-        //    }
-        //}
-
-
 
         /// <summary>
         /// Event handler called when an item in the left column is clicked.
@@ -362,13 +332,12 @@ namespace ColumnExplorer.Views
                     currentPath = RightColumnPath;
                 }
                 
-
                 // Paste from clipboard to the active ListBox
                 ClipboardHelper.PasteFromClipboard(activeListBox, activeTextBlock, currentPath);
             }
             else if (e.Key == Key.Delete) // Delete
             {
-                DeleteHelper.DeleteSelectedItems(CenterColumn.SelectedItems, RightColumnLabel); // Delete selected items
+                DeleteHelper.DeleteSelectedItems(CenterColumn.SelectedItems, CenterColumnLabel); // Delete selected items
             }
         }
 
@@ -790,6 +759,16 @@ namespace ColumnExplorer.Views
         private void ListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             _startPoint = e.GetPosition(null);
+
+            ListBox listBox = sender as ListBox;
+            if (listBox != null)
+            {
+                // 選択されたすべてのアイテムのパスを取得して _selectedPaths に保存
+                _selectedPaths = listBox.SelectedItems.Cast<ListBoxItem>()
+                    .Select(item => item.Tag?.ToString())
+                    .Where(path => !string.IsNullOrEmpty(path))
+                    .ToList();
+            }
         }
 
         // マウス移動のイベントハンドラ
@@ -814,15 +793,10 @@ namespace ColumnExplorer.Views
                             listBoxItem.IsSelected = true;
                         }
 
-                        // 選択されたすべてのアイテムのパスを取得
-                        var selectedPaths = listBox.SelectedItems.Cast<ListBoxItem>()
-                            .Select(item => item.Tag?.ToString())
-                            .Where(path => !string.IsNullOrEmpty(path))
-                            .ToArray();
-
-                        if (selectedPaths.Length > 0)
+                        // ドラッグの処理で _selectedPaths を参照
+                        if (_selectedPaths.Count > 0)
                         {
-                            DragDrop.DoDragDrop(listBoxItem, new DataObject("SelectedPaths", selectedPaths), DragDropEffects.Move);
+                            DragDrop.DoDragDrop(listBoxItem, new DataObject("SelectedPaths", _selectedPaths.ToArray()), DragDropEffects.Move);
                         }
                     }
                 }
@@ -951,6 +925,12 @@ namespace ColumnExplorer.Views
                     // Push the old center column path to the stack
                     PushToPreviousDirectories(oldPath);
                 }
+            }
+            // if space in the right column is clicked
+            else
+            {
+                // Move the content of the right column to the center column
+                MoveItemsLeft();
             }
         }
     }
