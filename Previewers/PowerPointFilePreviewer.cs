@@ -145,7 +145,10 @@ namespace ColumnExplorer.Previewers
 
                             using (var pen = new DrawingPen(System.Drawing.Color.Black))
                             {
-                                graphics.DrawRectangle(pen, new RectangleF(offsetX / 12700f, offsetY / 12700f, width / 12700f, height / 12700f));
+                                if (offsetX != null && offsetY != null && width != null && height != null)
+                                {
+                                    graphics.DrawRectangle(pen, new System.Drawing.Rectangle((int)(offsetX / 12700f), (int)(offsetY / 12700f), (int)(width / 12700f), (int)(height / 12700f)));
+                                }
                             }
                         }
                     }

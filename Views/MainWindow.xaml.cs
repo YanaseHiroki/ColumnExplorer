@@ -38,7 +38,7 @@ namespace ColumnExplorer.Views
             Loaded += MainWindow_Loaded;
             // event handler
             LeftColumn.MouseLeftButtonUp += LeftColumn_MouseLeftButtonUp;
-            RightColumn.SelectionChanged += RightColumn_SelectionChanged;
+            RightColumn.MouseLeftButtonUp += RightColumn_MouseLeftButtonUp;
             MouseDown += MainWindow_MouseDown;
             LeftColumn.PreviewMouseLeftButtonDown += ListBox_PreviewMouseLeftButtonDown;
             LeftColumn.PreviewMouseLeftButtonUp += ListBox_PreviewMouseLeftButtonUp;
@@ -60,32 +60,34 @@ namespace ColumnExplorer.Views
         /// <summary>
         /// Event handler called when the selection in the right column changes.
         /// </summary>
-        private void RightColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (RightColumn.SelectedItem is ListBoxItem selectedItem)
-            {
-                // Path of the selected item in the right column
-                string? selectedItemPath = selectedItem.Tag?.ToString();
+        //private void RightColumn_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        //{
+        //    if (RightColumn.SelectedItem is ListBoxItem selectedItem)
+        //    {
+        //        // Path of the selected item in the right column
+        //        string? selectedItemPath = selectedItem.Tag?.ToString();
 
-                // If the item has a path, select it in the center column
-                if (selectedItemPath != null)
-                {
+        //        // If the item has a path, select it in the center column
+        //        if (selectedItemPath != null)
+        //        {
 
-                    // Store old center column path
-                    string? oldPath = CenterColumnPath;
+        //            // Store old center column path
+        //            string? oldPath = CenterColumnPath;
 
-                    // Shift all items to the left so that the right column content moves to the center
-                    MoveItemsLeft();
+        //            // Shift all items to the left so that the right column content moves to the center
+        //            MoveItemsLeft();
 
-                    // Select the clicked item in the center column
-                    SelectItemInColumn(CenterColumn, selectedItemPath);
+        //            // Select the clicked item in the center column
+        //            SelectItemInColumn(CenterColumn, selectedItemPath);
 
-                    // Push the old center column path to the stack
-                    CenterColumn.Focus();
-                    PushToPreviousDirectories(oldPath);
-                }
-            }
-        }
+        //            // Push the old center column path to the stack
+        //            CenterColumn.Focus();
+        //            PushToPreviousDirectories(oldPath);
+        //        }
+        //    }
+        //}
+
+
 
         /// <summary>
         /// Event handler called when an item in the left column is clicked.
@@ -97,19 +99,22 @@ namespace ColumnExplorer.Views
                 // Path of the selected item in the left column
                 string? selectedItemPath = selectedItem.Tag?.ToString();
 
-                // If the item has a path and it is different from the center column path
-                if (selectedItemPath != null
-                    && !string.Equals(selectedItemPath, CenterColumnPath))
+                // If the item has a path
+                if (selectedItemPath != null)
                 {
-                    // Store old center column path
+                    // old center column path for stack
                     string? oldPath = CenterColumnPath;
 
-                    // Clear the right column
-                    RightColumn.Items.Clear();
-                    RightColumnLabel.Text = string.Empty;
+                    // new left column path
+                    string? newLeftColumnPath = Directory.GetParent(LeftColumnPath)?.FullName;
 
-                    // Display the content of the selected item in the center column
-                    LoadAllContent(selectedItemPath);
+                    // Move the content of the left column to the center column
+                    MoveItemsRignt(newLeftColumnPath);
+
+                    // Select the clicked item in the center column
+                    SelectItemInColumn(CenterColumn, selectedItemPath);
+
+                    // Focus on the center column
                     CenterColumn.Focus();
 
                     // Push the old center column path to the stack
@@ -207,7 +212,6 @@ namespace ColumnExplorer.Views
                 {
                     column.SelectedIndex = 0;
                 }
-
             }
         }
 
@@ -361,6 +365,10 @@ namespace ColumnExplorer.Views
 
                 // Paste from clipboard to the active ListBox
                 ClipboardHelper.PasteFromClipboard(activeListBox, activeTextBlock, currentPath);
+            }
+            else if (e.Key == Key.Delete) // Delete
+            {
+                DeleteHelper.DeleteSelectedItems(CenterColumn.SelectedItems, RightColumnLabel); // Delete selected items
             }
         }
 
@@ -536,14 +544,14 @@ namespace ColumnExplorer.Views
             }
             else if (!string.Equals(CenterColumnPath, DRIVE) && string.IsNullOrEmpty(newLeftColumnPath))
             {
-                // Display the drive list
+                // Display the drive list in the left column
                 ContentLoader.AddDrives(LeftColumn);
                 LeftColumnLabel.Text = DRIVE;
                 LeftColumnPath = DRIVE;
             }
             else
             {
-                // Display the content of the directory
+                // Display the content of the directory in the left column
                 DirectoryHelper.LoadDirectoryContent(LeftColumn, newLeftColumnPath);
                 LeftColumnLabel.Text = GetLabel(newLeftColumnPath);
                 LeftColumnPath = newLeftColumnPath;
@@ -908,6 +916,40 @@ namespace ColumnExplorer.Views
                             listBox.SelectedItem = listBoxItem;
                         }
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event handler called when an item in the right column is clicked.
+        /// </summary>
+        private void RightColumn_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (RightColumn.SelectedItem is ListBoxItem selectedItem)
+            {
+                // Path of the selected item in the right column
+                string? selectedItemPath = selectedItem.Tag?.ToString();
+
+                // If the item has a path
+                if (selectedItemPath != null)
+                {
+                    // old center column path for stack
+                    string? oldPath = CenterColumnPath;
+
+                    // new right column path
+                    string? newRightColumnPath = Directory.GetParent(RightColumnPath)?.FullName;
+
+                    // Move the content of the right column to the center column
+                    MoveItemsLeft();
+
+                    // Select the clicked item in the center column
+                    SelectItemInColumn(CenterColumn, selectedItemPath);
+
+                    // Focus on the center column
+                    CenterColumn.Focus();
+
+                    // Push the old center column path to the stack
+                    PushToPreviousDirectories(oldPath);
                 }
             }
         }
