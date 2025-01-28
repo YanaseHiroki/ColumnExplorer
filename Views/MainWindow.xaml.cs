@@ -22,6 +22,10 @@ namespace ColumnExplorer.Views
         internal string LeftColumnPath = string.Empty;
         internal string CenterColumnPath = string.Empty;
         internal string RightColumnPath = string.Empty;
+        // Stack to store the previous directories
+        private Stack<string> _previousDirectories = new Stack<string>();
+        // Stack to store the forward directories
+        private Stack<string> _forwardDirectories = new Stack<string>();
 
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
@@ -32,9 +36,26 @@ namespace ColumnExplorer.Views
 
             InitializeComponent();
             Loaded += MainWindow_Loaded;
+            // event handler
             LeftColumn.MouseLeftButtonUp += LeftColumn_MouseLeftButtonUp;
             RightColumn.SelectionChanged += RightColumn_SelectionChanged;
+            MouseDown += MainWindow_MouseDown;
+            LeftColumn.PreviewMouseLeftButtonDown += ListBox_PreviewMouseLeftButtonDown;
+            LeftColumn.PreviewMouseLeftButtonUp += ListBox_PreviewMouseLeftButtonUp;
+            LeftColumn.PreviewMouseMove += ListBox_PreviewMouseMove;
+            LeftColumn.Drop += ListBox_Drop;
+            CenterColumn.PreviewMouseLeftButtonDown += ListBox_PreviewMouseLeftButtonDown;
+            CenterColumn.PreviewMouseLeftButtonUp += ListBox_PreviewMouseLeftButtonUp;
+            CenterColumn.PreviewMouseMove += ListBox_PreviewMouseMove;
+            CenterColumn.Drop += ListBox_Drop;
+            RightColumn.PreviewMouseLeftButtonDown += ListBox_PreviewMouseLeftButtonDown;
+            RightColumn.PreviewMouseLeftButtonUp += ListBox_PreviewMouseLeftButtonUp;
+            RightColumn.PreviewMouseMove += ListBox_PreviewMouseMove;
+            RightColumn.Drop += ListBox_Drop;
         }
+
+        //　Starting point of the drag
+        private Point _startPoint;
 
         /// <summary>
         /// Event handler called when the selection in the right column changes.
@@ -49,12 +70,19 @@ namespace ColumnExplorer.Views
                 // If the item has a path, select it in the center column
                 if (selectedItemPath != null)
                 {
+
+                    // Store old center column path
+                    string? oldPath = CenterColumnPath;
+
                     // Shift all items to the left so that the right column content moves to the center
                     MoveItemsLeft();
 
                     // Select the clicked item in the center column
                     SelectItemInColumn(CenterColumn, selectedItemPath);
+
+                    // Push the old center column path to the stack
                     CenterColumn.Focus();
+                    PushToPreviousDirectories(oldPath);
                 }
             }
         }
@@ -73,12 +101,19 @@ namespace ColumnExplorer.Views
                 if (selectedItemPath != null
                     && !string.Equals(selectedItemPath, CenterColumnPath))
                 {
+                    // Store old center column path
+                    string? oldPath = CenterColumnPath;
+
                     // Clear the right column
                     RightColumn.Items.Clear();
                     RightColumnLabel.Text = string.Empty;
+
                     // Display the content of the selected item in the center column
                     LoadAllContent(selectedItemPath);
                     CenterColumn.Focus();
+
+                    // Push the old center column path to the stack
+                    PushToPreviousDirectories(oldPath);
                 }
             }
         }
@@ -97,67 +132,6 @@ namespace ColumnExplorer.Views
         internal void LoadHomeDirectory()
         {
             LoadAllContent(_homeDirectory);
-        }
-
-        /// <summary> 
-        /// Loads the content of the specified path into each column.
-        /// </summary>
-        internal void LoadAllContent(string path)
-        {
-            try
-            {
-                CenterColumnPath = path;
-
-                // If the center path is empty, display drive list in the center column
-                if (string.IsNullOrEmpty(CenterColumnPath))
-                {
-                    // Display drive list in the center column
-                    ContentLoader.AddDrives(CenterColumn);
-                    CenterColumnLabel.Text = DRIVE;
-                }
-                // If the center path is not empty, display the content of the path in the center column
-                else
-                {
-                    // Display the content of the folder in the center column
-                    DirectoryHelper.LoadDirectoryContent(CenterColumn, CenterColumnPath);
-                    CenterColumnLabel.Text = GetLabel(CenterColumnPath);
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Error in LoadAllContent: {ex.Message}");
-                throw;
-            }
-
-            // Left column
-            if (CenterColumnPath != string.Empty)
-            {
-                // Get the parent directory of the center column path and set it as the left column path
-                LeftColumnPath = Directory.GetParent(CenterColumnPath)?.FullName;
-                LeftColumnPath = (LeftColumnPath == null) ? string.Empty : LeftColumnPath;
-
-                if (string.IsNullOrEmpty(LeftColumnPath))
-                {
-                    // Display drive list
-                    ContentLoader.AddDrives(LeftColumn);
-                    LeftColumnLabel.Text = DRIVE;
-                }
-                else
-                {
-                    // Display the content of the folder
-                    DirectoryHelper.LoadDirectoryContent(LeftColumn, LeftColumnPath);
-                    LeftColumnLabel.Text = GetLabel(LeftColumnPath);
-                }
-
-                if (LeftColumn.Items.Count > 0 && CenterColumnPath != null)
-                {
-                    // Select the center column path in the left column
-                    SelectItemInColumn(LeftColumn, CenterColumnPath);
-                }
-            }
-
-            // Select the first item in the center column
-            FocusSelectedItemInCenterColumn(string.Empty);
         }
 
         /// <summary>
@@ -294,6 +268,14 @@ namespace ColumnExplorer.Views
                     else if (extension == ".pdf")
                     {
                         PdfFilePreviewer.PreviewPdfFile(RightColumn, RightColumnPath);
+                    }
+                    else
+                    {
+                        // If the selected item is a file with an unsupported extension, display its properties
+                        if (RightColumnPath != null && File.Exists(RightColumnPath))
+                        {
+                            UnsupportedFilePreviewer.PreviewUnsupportedFile(RightColumn, RightColumnPath);
+                        }
                     }
                 }
             }
@@ -451,11 +433,21 @@ namespace ColumnExplorer.Views
                 string? selectedItemPath = selectedItem.Tag?.ToString();
                 if (selectedItemPath != null && Directory.Exists(selectedItemPath))
                 {
+                    // store old center column path
+                    string? oldPath = CenterColumnPath;
+
+                    // Move the content of the center column to the left column
                     MoveItemsLeft();
+
+                    // Push the old center column path to the stack
+                    PushToPreviousDirectories(oldPath);
                 }
             }
         }
 
+        /// <summary>
+        /// Move items to the left column and load contents of the right column
+        /// </summary>
         private void MoveItemsLeft()
         {
             // Move the content of the center column to the left column
@@ -496,6 +488,9 @@ namespace ColumnExplorer.Views
         /// </summary>
         internal void MoveToParentDirectory()
         {
+            // store old center column path
+            string? oldPath = CenterColumnPath;
+
             // Check if the left column is displaying a directory
             if (Directory.Exists(LeftColumnPath))
             {
@@ -508,6 +503,9 @@ namespace ColumnExplorer.Views
                 string newLeftColumnPath = string.Empty;
                 MoveItemsRignt(newLeftColumnPath);
             }
+
+            // Push the old center column path to the stack
+            PushToPreviousDirectories(oldPath);
         }
 
         /// <summary>
@@ -568,6 +566,9 @@ namespace ColumnExplorer.Views
             {
                 selectedListBoxItem.Focus();
             }
+
+            // Push the current directory to the stack
+            PushToPreviousDirectories(CenterColumnPath);
         }
 
         /// <summary>
@@ -605,11 +606,12 @@ namespace ColumnExplorer.Views
         /// </summary>
         internal void UpdateRightColumnWithSelectedItems()
         {
-            // 右カラムのアイテムを消去
+            // Clear the right column
             RightColumn.Items.Clear();
-            // 右カラムのラベルを更新
+            // Update the label of the right column
             RightColumnLabel.Text = SELECTED_ITEMS;
-            // 中央カラムで選択されたアイテムを右カラムに表示
+
+            // Add the selected items to the right column
             foreach (var selectedItem in CenterColumn.SelectedItems)
             {
                 if (selectedItem is ListBoxItem listBoxItem)
@@ -623,24 +625,24 @@ namespace ColumnExplorer.Views
                     RightColumn.Items.Add(newItem);
                 }
             }
-            // 右カラムのアイテムをすべて選択状態にする
+            // Select all items in the right column
             RightColumn.SelectAll();
         }
 
         /// <summary>
-        /// アイテムを一つのListBoxから別のListBoxに移動します。
+        /// Moves items from one ListBox to another ListBox.
         /// </summary>
-        /// <param name="source">移動元のListBox。</param>
-        /// <param name="destination">移動先のListBox。</param>
+        /// <param name="source">The source ListBox.</param>
+        /// <param name="destination">The destination ListBox.</param>
         internal void MoveItems(ListBox source, ListBox destination)
         {
-            // 移動先のアイテムを消去
+            // Clear the items in the destination
             destination.Items.Clear();
 
-            // 移動先の選択アイテム情報を消去
+            // Clear the selected items information in the destination
             destination.SelectedItems.Clear();
 
-            // アイテムを移動先にコピー
+            // Copy items to the destination
             foreach (var item in source.Items)
             {
                 var clonedItem = new ListBoxItem
@@ -652,13 +654,262 @@ namespace ColumnExplorer.Views
                 destination.Items.Add(clonedItem);
             }
 
-            // 選択アイテム情報をコピー
+            // Copy selected items information
             foreach (var item in source.SelectedItems)
             {
                 destination.SelectedItems.Add(item);
             }
-            // 移動元のアイテムを消去
+            // Clear the items in the source
             source.Items.Clear();
+        }
+
+        /// <summary>
+        /// Event handler for the mouse buttons.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainWindow_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.XButton1 == MouseButtonState.Pressed)
+            {
+                MoveToPreviousDirectory();
+            }
+            else if (e.XButton2 == MouseButtonState.Pressed)
+            {
+                MoveToForwardDirectory();
+            }
+        }
+
+        /// <summary>
+        /// Moves to the previous directory.
+        /// </summary>
+        private void MoveToPreviousDirectory()
+        {
+            if (_previousDirectories.Count > 0)
+            {
+                string previousDirectory = _previousDirectories.Pop();
+                _forwardDirectories.Push(CenterColumnPath);
+                LoadAllContent(previousDirectory);
+            }
+        }
+
+        /// <summary> 
+        /// Loads the content of the specified path into each column.
+        /// </summary>
+        internal void LoadAllContent(string path)
+        {
+            // Load the content of the center column
+            try
+            {
+                CenterColumnPath = path;
+
+                if (string.IsNullOrEmpty(CenterColumnPath))
+                {
+                    // Display the drive list in the center column
+                    ContentLoader.AddDrives(CenterColumn);
+                    CenterColumnLabel.Text = DRIVE;
+                }
+                else
+                {
+                    // Display the content of the directory
+                    DirectoryHelper.LoadDirectoryContent(CenterColumn, CenterColumnPath);
+                    CenterColumnLabel.Text = GetLabel(CenterColumnPath);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"Error in LoadAllContent: {ex.Message}");
+                throw;
+            }
+
+            // Load the content of the left column
+            if (CenterColumnPath != string.Empty)
+            {
+                LeftColumnPath = Directory.GetParent(CenterColumnPath)?.FullName ?? string.Empty;
+
+                if (string.IsNullOrEmpty(LeftColumnPath))
+                {
+                    // Display the drive list
+                    ContentLoader.AddDrives(LeftColumn);
+                    LeftColumnLabel.Text = DRIVE;
+                }
+                else
+                {
+                    // Display the content of the directory
+                    DirectoryHelper.LoadDirectoryContent(LeftColumn, LeftColumnPath);
+                    LeftColumnLabel.Text = GetLabel(LeftColumnPath);
+                }
+
+                if (LeftColumn.Items.Count > 0 && CenterColumnPath != null)
+                {
+                    // Select the center column path in the left column
+                    SelectItemInColumn(LeftColumn, CenterColumnPath);
+                }
+            }
+
+            // Focus on the selected item in the center column
+            // to display its content in the right column
+            FocusSelectedItemInCenterColumn(string.Empty);
+        }
+
+        /// <summary>
+        /// Pushes the specified path to the stack of previous directories.
+        /// </summary>
+        /// <param name="path"></param>
+        private void PushToPreviousDirectories(string? path)
+        {
+            if (path != null &&
+                (_previousDirectories.Count == 0 || _previousDirectories.Peek() != path))
+            {
+                _previousDirectories.Push(path);
+            }
+        }
+
+        /// <summary>
+        /// Moves to the forward directory.
+        /// </summary>
+        private void MoveToForwardDirectory()
+        {
+            if (_forwardDirectories.Count > 0)
+            {
+                string forwardDirectory = _forwardDirectories.Pop();
+                _previousDirectories.Push(CenterColumnPath);
+                LoadAllContent(forwardDirectory);
+            }
+        }
+
+        // ドラッグ開始のイベントハンドラ
+        private void ListBox_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            _startPoint = e.GetPosition(null);
+        }
+
+        // マウス移動のイベントハンドラ
+        private void ListBox_PreviewMouseMove(object sender, MouseEventArgs e)
+        {
+            Point mousePos = e.GetPosition(null);
+            Vector diff = _startPoint - mousePos;
+
+            if (e.LeftButton == MouseButtonState.Pressed &&
+                (Math.Abs(diff.X) > SystemParameters.MinimumHorizontalDragDistance ||
+                 Math.Abs(diff.Y) > SystemParameters.MinimumVerticalDragDistance))
+            {
+                ListBox listBox = sender as ListBox;
+                if (listBox != null)
+                {
+                    ListBoxItem listBoxItem = FindAncestor<ListBoxItem>((DependencyObject)e.OriginalSource);
+                    if (listBoxItem != null)
+                    {
+                        // Ctrlキーが押されているように扱う
+                        if (!listBox.SelectedItems.Contains(listBoxItem))
+                        {
+                            listBoxItem.IsSelected = true;
+                        }
+
+                        // 選択されたすべてのアイテムのパスを取得
+                        var selectedPaths = listBox.SelectedItems.Cast<ListBoxItem>()
+                            .Select(item => item.Tag?.ToString())
+                            .Where(path => !string.IsNullOrEmpty(path))
+                            .ToArray();
+
+                        if (selectedPaths.Length > 0)
+                        {
+                            DragDrop.DoDragDrop(listBoxItem, new DataObject("SelectedPaths", selectedPaths), DragDropEffects.Move);
+                        }
+                    }
+                }
+            }
+        }
+
+        // ドロップのイベントハンドラ
+        private void ListBox_Drop(object sender, DragEventArgs e)
+        {
+            ListBox listBox = sender as ListBox;
+            if (listBox != null && e.Data.GetDataPresent("SelectedPaths"))
+            {
+                string[] sourcePaths = e.Data.GetData("SelectedPaths") as string[];
+
+                // ドロップ先のアイテムを取得
+                Point dropPosition = e.GetPosition(listBox);
+                var targetItem = listBox.InputHitTest(dropPosition) as DependencyObject;
+                var listBoxItem = FindAncestor<ListBoxItem>(targetItem);
+
+                string targetPath = listBoxItem?.Tag?.ToString();
+
+                // ドロップ先がフォルダーでない場合、カラムのパスを使用
+                if (string.IsNullOrEmpty(targetPath))
+                {
+                    if (listBox == LeftColumn)
+                    {
+                        targetPath = LeftColumnPath;
+                    }
+                    else if (listBox == CenterColumn)
+                    {
+                        targetPath = CenterColumnPath;
+                    }
+                    else if (listBox == RightColumn)
+                    {
+                        targetPath = RightColumnPath;
+                    }
+                }
+
+                if (sourcePaths != null && !string.IsNullOrEmpty(targetPath) && Directory.Exists(targetPath))
+                {
+                    foreach (var sourcePath in sourcePaths)
+                    {
+                        string fileName = Path.GetFileName(sourcePath);
+                        string destinationPath = Path.Combine(targetPath, fileName);
+
+                        try
+                        {
+                            File.Move(sourcePath, destinationPath);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show($"ファイルの移動中にエラーが発生しました: {ex.Message}");
+                        }
+                    }
+                    LoadAllContent(CenterColumnPath); // コンテンツを再読み込み
+                }
+            }
+        }
+
+        // ヘルパーメソッド: 指定した型の先祖を見つける
+        private static T FindAncestor<T>(DependencyObject current) where T : DependencyObject
+        {
+            while (current != null)
+            {
+                if (current is T)
+                {
+                    return (T)current;
+                }
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return null;
+        }
+        private void ListBox_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            Point endPoint = e.GetPosition(null);
+
+            // ドラッグが発生していない場合にのみ選択を行う
+            if (Math.Abs(_startPoint.X - endPoint.X) <= SystemParameters.MinimumHorizontalDragDistance &&
+                Math.Abs(_startPoint.Y - endPoint.Y) <= SystemParameters.MinimumVerticalDragDistance)
+            {
+                ListBox listBox = sender as ListBox;
+                if (listBox != null)
+                {
+                    ListBoxItem listBoxItem = FindAncestor<ListBoxItem>((DependencyObject)e.OriginalSource);
+                    if (listBoxItem != null)
+                    {
+                        // アイテムが選択されていない場合は選択する
+                        if (!listBox.SelectedItems.Contains(listBoxItem))
+                        {
+                            listBox.SelectedItems.Clear();
+                            listBox.SelectedItem = listBoxItem;
+                        }
+                    }
+                }
+            }
         }
     }
 }
