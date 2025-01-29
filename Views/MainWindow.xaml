@@ -29,7 +29,7 @@
                  ScrollViewer.CanContentScroll="False" FontSize="13" AllowDrop="True" />
 
         <!-- GridSplitter between the left and center columns -->
-        <GridSplitter Grid.Column="1" Grid.RowSpan="2" Width="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
+        <GridSplitter Grid.Column="1" Grid.RowSpan="2" Width="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Focusable="False" />
 
         <!-- TextBlock for displaying folder name in the center column -->
         <Border Grid.Column="2" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0">
@@ -44,7 +44,7 @@
                  ScrollViewer.CanContentScroll="False" FontSize="13" AllowDrop="True" />
 
         <!-- GridSplitter between the center and right columns -->
-        <GridSplitter Grid.Column="3" Grid.RowSpan="2" Width="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" />
+        <GridSplitter Grid.Column="3" Grid.RowSpan="2" Width="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Focusable="False" />
 
         <!-- TextBlock for displaying folder name in the right column -->
         <Border Grid.Column="4" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0">

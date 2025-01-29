@@ -339,6 +339,30 @@ namespace ColumnExplorer.Views
             {
                 DeleteHelper.DeleteSelectedItems(CenterColumn.SelectedItems, CenterColumnLabel); // Delete selected items
             }
+            else if (e.Key == Key.N && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift)) // Ctrl + Shift + N
+            {
+                CreateNewFolder();
+            }
+        }
+
+        /// <summary>
+        /// Creates a new folder in the current directory.
+        /// </summary>
+        private void CreateNewFolder()
+        {
+            string currentPath = CenterColumnPath;
+            if (Directory.Exists(currentPath))
+            {
+                string newFolderPath = Path.Combine(currentPath, "New Folder");
+                int count = 1;
+                while (Directory.Exists(newFolderPath))
+                {
+                    newFolderPath = Path.Combine(currentPath, $"New Folder ({count})");
+                    count++;
+                }
+                Directory.CreateDirectory(newFolderPath);
+                LoadAllContent(currentPath);
+            }
         }
 
         /// <summary>
@@ -474,8 +498,9 @@ namespace ColumnExplorer.Views
                 string? newLeftColumnPath = Directory.GetParent(LeftColumnPath)?.FullName;
                 MoveItemsRignt(newLeftColumnPath);
 
-            // Check if the left column is displaying the drive list
-            } else if (string.Equals(LeftColumnPath, DRIVE))
+                // Check if the left column is displaying the drive list
+            }
+            else if (string.Equals(LeftColumnPath, DRIVE))
             {
                 string newLeftColumnPath = string.Empty;
                 MoveItemsRignt(newLeftColumnPath);
@@ -483,6 +508,15 @@ namespace ColumnExplorer.Views
 
             // Push the old center column path to the stack
             PushToPreviousDirectories(oldPath);
+
+            // Focus on the center column
+            CenterColumn.Focus();
+
+            // Focus on the folder which was displayed center
+            if (CenterColumn.SelectedItem is ListBoxItem selectedListBoxItem)
+            {
+                selectedListBoxItem.Focus();
+            }
         }
 
         /// <summary>

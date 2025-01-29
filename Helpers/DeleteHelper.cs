@@ -3,6 +3,7 @@ using System.IO;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace ColumnExplorer.Helpers
 {
@@ -28,11 +29,25 @@ namespace ColumnExplorer.Helpers
                     if (selectedItem is ListBoxItem listBoxItem)
                     {
                         string? path = listBoxItem.Tag?.ToString();
-                        if (path != null && File.Exists(path))
+                        if (path != null)
                         {
-                            File.Delete(path);
-                            itemsToRemove.Add(listBoxItem);
-                            parentListBox = listBoxItem.Parent as ListBox;
+                            try
+                            {
+                                if (File.Exists(path))
+                                {
+                                    File.Delete(path);
+                                }
+                                else if (Directory.Exists(path))
+                                {
+                                    Directory.Delete(path, true);
+                                }
+                                itemsToRemove.Add(listBoxItem);
+                                parentListBox = listBoxItem.Parent as ListBox;
+                            }
+                            catch (Exception ex)
+                            {
+                                MessageBox.Show($"çÌèúíÜÇ…ÉGÉâÅ[Ç™î≠ê∂ÇµÇ‹ÇµÇΩ: {ex.Message}");
+                            }
                         }
                     }
                 }
