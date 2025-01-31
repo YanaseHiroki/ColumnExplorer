@@ -38,6 +38,7 @@ namespace ColumnExplorer.Views
 
             InitializeComponent();
             Loaded += MainWindow_Loaded;
+
             // event handler
             LeftColumn.MouseLeftButtonUp += LeftColumn_MouseLeftButtonUp;
             RightColumn.MouseLeftButtonUp += RightColumn_MouseLeftButtonUp;
@@ -45,15 +46,69 @@ namespace ColumnExplorer.Views
             LeftColumn.PreviewMouseLeftButtonDown += ListBox_PreviewMouseLeftButtonDown;
             LeftColumn.PreviewMouseLeftButtonUp += ListBox_PreviewMouseLeftButtonUp;
             LeftColumn.PreviewMouseMove += ListBox_PreviewMouseMove;
-            LeftColumn.Drop += ListBox_Drop;
             CenterColumn.PreviewMouseLeftButtonDown += ListBox_PreviewMouseLeftButtonDown;
             CenterColumn.PreviewMouseLeftButtonUp += ListBox_PreviewMouseLeftButtonUp;
             CenterColumn.PreviewMouseMove += ListBox_PreviewMouseMove;
-            CenterColumn.Drop += ListBox_Drop;
             RightColumn.PreviewMouseLeftButtonDown += ListBox_PreviewMouseLeftButtonDown;
             RightColumn.PreviewMouseLeftButtonUp += ListBox_PreviewMouseLeftButtonUp;
             RightColumn.PreviewMouseMove += ListBox_PreviewMouseMove;
+
+            // Event handler for dropping items
+            LeftColumn.Drop += ListBox_Drop;
+            CenterColumn.Drop += ListBox_Drop;
             RightColumn.Drop += ListBox_Drop;
+
+            // Event handler to load the content of the column path
+            RightColumnLabel.MouseLeftButtonUp += RightColumnLabel_MouseLeftButtonUp;
+            CenterColumnLabel.MouseLeftButtonUp += CenterColumnLabel_MouseLeftButtonUp;
+            LeftColumnLabel.MouseLeftButtonUp += LeftColumnLabel_MouseLeftButtonUp;
+
+            // Event handler for the mouse over
+            LeftColumn.MouseMove += Column_MouseMove;
+            LeftColumn.MouseLeave += Column_MouseLeave;
+            RightColumn.MouseMove += Column_MouseMove;
+            RightColumn.MouseLeave += Column_MouseLeave;
+        }
+
+        /// <summary>
+        /// Event handler called when an item in the right column is mouse over.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Column_MouseMove(object sender, MouseEventArgs e)
+        {
+            ListBox listBox = sender as ListBox;
+            if (listBox != null)
+            {
+                Point position = e.GetPosition(listBox);
+                HitTestResult result = VisualTreeHelper.HitTest(listBox, position);
+
+                if (result != null && result.VisualHit is ListBoxItem)
+                {
+                    // アイテムにマウスオーバーしている場合は背景を変更しない
+                    listBox.Background = Brushes.Transparent;
+                }
+                else
+                {
+                    // 余白にマウスオーバーしている場合は背景を #F0FFFF に変更
+                    listBox.Background = new SolidColorBrush(Color.FromRgb(249, 255, 255));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Event handler called when an item in the right column is mouse over.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Column_MouseLeave(object sender, MouseEventArgs e)
+        {
+            ListBox listBox = sender as ListBox;
+            if (listBox != null)
+            {
+                // マウスがカラムから離れたときに背景を元に戻す
+                listBox.Background = Brushes.Transparent;
+            }
         }
 
         //　Starting point of the drag
@@ -709,9 +764,12 @@ namespace ColumnExplorer.Views
         /// </summary>
         internal void LoadAllContent(string path)
         {
+
             // Load the content of the center column
             try
             {
+                // Clear all labels and all column items
+                ClearAllColumns();
                 CenterColumnPath = path;
 
                 if (string.IsNullOrEmpty(CenterColumnPath))
@@ -967,5 +1025,29 @@ namespace ColumnExplorer.Views
                 MoveItemsLeft();
             }
         }
+        private void RightColumnLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            LoadAllContent(RightColumnPath);
+        }
+
+        private void CenterColumnLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            LoadAllContent(CenterColumnPath);
+        }
+
+        private void LeftColumnLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            LoadAllContent(LeftColumnPath);
+        }
+        private void ClearAllColumns()
+        {
+            LeftColumnLabel.Text = string.Empty;
+            LeftColumn.Items.Clear();
+            CenterColumnLabel.Text = string.Empty;
+            CenterColumn.Items.Clear();
+            RightColumnLabel.Text = string.Empty;
+            RightColumn.Items.Clear();
+        }
+
     }
 }

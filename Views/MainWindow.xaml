@@ -19,7 +19,8 @@
         <!-- TextBlock for displaying folder name in the left column -->
         <Border Grid.Column="0" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0">
             <TextBlock x:Name="LeftColumnLabel" HorizontalAlignment="Center"
-               FontWeight="Bold" Padding="5" FontSize="13" />
+                       FontWeight="Bold" Padding="5" FontSize="13"
+                       Foreground="Blue" TextDecorations="Underline" />
         </Border>
 
         <!-- ListBox for the left column -->
@@ -34,7 +35,8 @@
         <!-- TextBlock for displaying folder name in the center column -->
         <Border Grid.Column="2" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0">
             <TextBlock x:Name="CenterColumnLabel" HorizontalAlignment="Center"
-               FontWeight="Bold" Padding="5" FontSize="13" />
+                       FontWeight="Bold" Padding="5" FontSize="13"
+                       Foreground="Blue" TextDecorations="Underline" />
         </Border>
 
         <!-- ListBox for the center column. Multiple selection mode enabled -->
@@ -49,7 +51,8 @@
         <!-- TextBlock for displaying folder name in the right column -->
         <Border Grid.Column="4" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0">
             <TextBlock x:Name="RightColumnLabel" HorizontalAlignment="Center"
-               FontWeight="Bold" Padding="5" FontSize="13" />
+                       FontWeight="Bold" Padding="5" FontSize="13"
+                       Foreground="Blue" TextDecorations="Underline" />
         </Border>
 
         <!-- ListBox for the right column -->
