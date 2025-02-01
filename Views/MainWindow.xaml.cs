@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ColumnExplorer.Helpers;
 using ColumnExplorer.Previewers;
+using System.Collections.Generic;
 
 namespace ColumnExplorer.Views
 {
@@ -17,15 +18,26 @@ namespace ColumnExplorer.Views
         // const string
         private const string DRIVE = "Drive";
         private const string SELECTED_ITEMS = "Selected Items";
+        private const string MOVE = "Move!";
+        private const string UNDO = "Undo!";
+        private const string REDO = "Redo!";
+
         // Home directory
         internal static string _homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         internal string LeftColumnPath = string.Empty;
         internal string CenterColumnPath = string.Empty;
         internal string RightColumnPath = string.Empty;
+
         // Stack to store the previous directories
         private Stack<string> _previousDirectories = new Stack<string>();
+
         // Stack to store the forward directories
         private Stack<string> _forwardDirectories = new Stack<string>();
+
+        // Stack to store the undo and redo actions
+        private Stack<Action> _undoStack = new Stack<Action>();
+        private Stack<Action> _redoStack = new Stack<Action>();
+
         // List to store selected paths
         private List<string?> _selectedPaths = new List<string?>();
 
@@ -432,6 +444,59 @@ namespace ColumnExplorer.Views
                 // Clear the selected items
                 CenterColumn.SelectedItems.Clear();
             }
+            else if (e.Key == Key.Z && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + Z
+            {
+                Undo();
+            }
+            else if (e.Key == Key.Y && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + Y
+            {
+                Redo();
+            }
+        }
+        
+        private async void Undo()
+        {
+            if (_undoStack.Count > 0)
+            {
+                var undoAction = _undoStack.Pop();
+                //_redoStack.Push(undoAction); // need to be contravert
+                undoAction();
+
+                // Load all contents
+                LoadAllContent(CenterColumnPath);
+
+                // Set _selectedPaths for the center column
+                _selectedPaths = CenterColumn.Items.Cast<ListBoxItem>()
+                    .Where(item => item.IsSelected)
+                    .Select(item => item.Tag?.ToString())
+                    .ToList();
+
+                // Feedback "Undo!"
+                await ClipboardHelper.UpdateLabelTemporarily(CenterColumnLabel, UNDO);
+            }
+        }
+
+        // 操作を再現するメソッド
+        private async Task Redo()
+        {
+            if (_redoStack.Count > 0)
+            {
+                var redoAction = _redoStack.Pop();
+                //_undoStack.Push(redoAction); // need to be contravert
+                redoAction();
+
+                // Load all contents
+                LoadAllContent(CenterColumnPath);
+
+                // Set _selectedPaths for the center column
+                _selectedPaths = CenterColumn.Items.Cast<ListBoxItem>()
+                    .Where(item => item.IsSelected)
+                    .Select(item => item.Tag?.ToString())
+                    .ToList();
+
+                // Feedback "Redo!"
+                await ClipboardHelper.UpdateLabelTemporarily(CenterColumnLabel, REDO);
+            }
         }
 
         /// <summary>
@@ -702,7 +767,7 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// Displays the selected items in the center column in the right column
+        /// Displays the selected items in the center column, in the right column
         /// </summary>
         internal void UpdateRightColumnWithSelectedItems()
         {
@@ -960,7 +1025,7 @@ namespace ColumnExplorer.Views
         }
 
         // ドロップのイベントハンドラ
-        private void ListBox_Drop(object sender, DragEventArgs e)
+        private async void ListBox_Drop(object sender, DragEventArgs e)
         {
             ListBox listBox = sender as ListBox;
             if (listBox != null && e.Data.GetDataPresent("SelectedPaths"))
@@ -993,23 +1058,84 @@ namespace ColumnExplorer.Views
 
                 if (sourcePaths != null && !string.IsNullOrEmpty(targetPath) && Directory.Exists(targetPath))
                 {
-                    foreach (var sourcePath in sourcePaths)
-                    {
-                        string fileName = Path.GetFileName(sourcePath);
-                        string destinationPath = Path.Combine(targetPath, fileName);
-
-                        try
-                        {
-                            File.Move(sourcePath, destinationPath);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show($"ファイルの移動中にエラーが発生しました: {ex.Message}");
-                        }
-                    }
+                    MoveFiles(sourcePaths, targetPath);
                     LoadAllContent(targetPath); // 移動先のコンテンツを再読み込み
+                    await ClipboardHelper.UpdateLabelTemporarily(CenterColumnLabel, MOVE);
                 }
             }
+        }
+
+        /// <summary>
+        /// ファイルを移動し、元に戻すためのアクションを履歴に追加します。
+        /// </summary>
+        /// <param name="sourcePaths">移動元のファイルパスの配列。</param>
+        /// <param name="targetPath">移動先のディレクトリパス。</param>
+        private void MoveFiles(string[] sourcePaths, string targetPath)
+        {
+            List<(string sourcePath, string destinationPath)> movedFiles = new List<(string sourcePath, string destinationPath)>();
+
+            foreach (var sourcePath in sourcePaths)
+            {
+                string fileName = Path.GetFileName(sourcePath);
+                string destinationPath = Path.Combine(targetPath, fileName);
+
+                try
+                {
+                    File.Move(sourcePath, destinationPath);
+                    movedFiles.Add((sourcePath, destinationPath));
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"ファイルの移動中にエラーが発生しました: {ex.Message}");
+                }
+            }
+
+            // 全体を1回の操作としてUndoにPush
+            Action undoAction = () => UndoMoveFiles(movedFiles);
+            Action redoAction = () => RedoMoveFiles(movedFiles);
+            AddToUndoStack(undoAction, redoAction);
+        }
+
+        /// <summary>
+        /// ファイル移動を元に戻すメソッド
+        /// </summary>
+        /// <param name="movedFiles">移動したファイルのリスト。</param>
+        private void UndoMoveFiles(List<(string sourcePath, string destinationPath)> movedFiles)
+        {
+            foreach (var (sourcePath, destinationPath) in movedFiles)
+            {
+                if (File.Exists(destinationPath))
+                {
+                    File.Move(destinationPath, sourcePath);
+                }
+            }
+        }
+
+        /// <summary>
+        /// ファイル移動を再現するメソッド
+        /// </summary>
+        /// <param name="movedFiles">移動したファイルのリスト。</param>
+        private void RedoMoveFiles(List<(string sourcePath, string destinationPath)> movedFiles)
+        {
+            foreach (var (sourcePath, destinationPath) in movedFiles)
+            {
+                if (File.Exists(sourcePath))
+                {
+                    File.Move(sourcePath, destinationPath);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 操作を履歴に追加するメソッド
+        /// </summary>
+        /// <param name="undoAction">元に戻すアクション。</param>
+        /// <param name="redoAction">やり直すアクション。</param>
+        private void AddToUndoStack(Action undoAction, Action redoAction)
+        {
+            _undoStack.Push(undoAction);
+            _redoStack.Clear(); // 新しい操作が追加されたら、やり直し履歴をクリア
+            _redoStack.Push(redoAction);
         }
 
         // ヘルパーメソッド: 指定した型の先祖を見つける

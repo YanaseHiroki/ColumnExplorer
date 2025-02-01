@@ -10,8 +10,8 @@ namespace ColumnExplorer.Helpers
     public static class ClipboardHelper
     {
         // Constants
-        private const string COPIED = " Copied! ";
-        private const string PASTED = " Pasted! ";
+        private const string COPIED = " Copy! ";
+        private const string PASTED = " Paste! ";
         private const string STATUS_BACKGROUND = "#FFFFAF";
 
         // List to store cut paths
@@ -44,18 +44,7 @@ namespace ColumnExplorer.Helpers
                     Clipboard.SetFileDropList(selectedPaths);
 
                     // Update the label to COPIED and change background color
-                    string originalText = rightColumnLabel.Text;
-                    Brush originalBackground = rightColumnLabel.Background;
-                    rightColumnLabel.Text = COPIED;
-                    rightColumnLabel.Background
-                        = new SolidColorBrush((Color)ColorConverter.ConvertFromString(STATUS_BACKGROUND));
-
-                    // Wait for 1.5 seconds
-                    await Task.Delay(1500);
-
-                    // Restore the original text and background color
-                    rightColumnLabel.Text = originalText;
-                    rightColumnLabel.Background = originalBackground;
+                    await UpdateLabelTemporarily(rightColumnLabel, COPIED);
                 }
             }
         }
@@ -114,18 +103,7 @@ namespace ColumnExplorer.Helpers
                 }
 
                 // provide feedback to the user
-                string originalText = columnLabel.Text;
-                Brush originalBackground = columnLabel.Background;
-                columnLabel.Text = PASTED;
-                columnLabel.Background
-                    = new SolidColorBrush((Color)ColorConverter.ConvertFromString(STATUS_BACKGROUND));
-
-                // Wait for 1.5 seconds
-                await Task.Delay(1500);
-
-                // Restore the original text and background color
-                columnLabel.Text = originalText;
-                columnLabel.Background = originalBackground;
+                await UpdateLabelTemporarily(columnLabel, PASTED);
             }
 
             // move the cut items
@@ -147,18 +125,7 @@ namespace ColumnExplorer.Helpers
                 }
                 _cutPaths.Clear();
                 // provide feedback to the user
-                string originalText = columnLabel.Text;
-                Brush originalBackground = columnLabel.Background;
-                columnLabel.Text = PASTED;
-                columnLabel.Background
-                    = new SolidColorBrush((Color)ColorConverter.ConvertFromString(STATUS_BACKGROUND));
-
-                // Wait for 1.5 seconds
-                await Task.Delay(1500);
-
-                // Restore the original text and background color
-                columnLabel.Text = originalText;
-                columnLabel.Background = originalBackground;
+                await UpdateLabelTemporarily(columnLabel, PASTED);
             }
         }
 
@@ -189,6 +156,21 @@ namespace ColumnExplorer.Helpers
                 return true;
             }
             return false;
+        }
+
+        public static async Task UpdateLabelTemporarily(TextBlock label, string message)
+        {
+            string originalText = label.Text;
+            Brush originalBackground = label.Background;
+            label.Text = message;
+            label.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(STATUS_BACKGROUND));
+
+            // Wait for 1.5 seconds
+            await Task.Delay(1500);
+
+            // Restore the original text and background color
+            label.Text = originalText;
+            label.Background = originalBackground;
         }
     }
 }
