@@ -14,6 +14,9 @@ namespace ColumnExplorer.Helpers
         private const string PASTED = " Pasted! ";
         private const string STATUS_BACKGROUND = "#FFFFAF";
 
+        // List to store cut paths
+        private static List<string> _cutPaths = new List<string>();
+
         /// <summary>
         /// Copies the selected items to the clipboard and changes their appearance.
         /// </summary>
@@ -124,11 +127,51 @@ namespace ColumnExplorer.Helpers
                 columnLabel.Text = originalText;
                 columnLabel.Background = originalBackground;
             }
-            else
+
+            // move the cut items
+            if (_cutPaths.Count > 0)
             {
-                MessageBox.Show("The clipboard does not contain any files to paste.", "No Files to Paste",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                foreach (var cutPath in _cutPaths)
+                {
+                    string fileName = Path.GetFileName(cutPath);
+                    string destinationPath = Path.Combine(destination, fileName);
+
+                    try
+                    {
+                        File.Move(cutPath, destinationPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"ファイルの移動中にエラーが発生しました: {ex.Message}");
+                    }
+                }
+                _cutPaths.Clear();
+                // provide feedback to the user
+                string originalText = columnLabel.Text;
+                Brush originalBackground = columnLabel.Background;
+                columnLabel.Text = PASTED;
+                columnLabel.Background
+                    = new SolidColorBrush((Color)ColorConverter.ConvertFromString(STATUS_BACKGROUND));
+
+                // Wait for 1.5 seconds
+                await Task.Delay(1500);
+
+                // Restore the original text and background color
+                columnLabel.Text = originalText;
+                columnLabel.Background = originalBackground;
             }
+        }
+
+        /// <summary>
+        /// Stores the paths of the items to be cut.
+        /// </summary>
+        /// <param name="selectedItems">The collection of selected items to cut.</param>
+        public static void CutSelectedItems(System.Collections.IList selectedItems)
+        {
+            _cutPaths = selectedItems.Cast<ListBoxItem>()
+                .Select(item => item.Tag?.ToString()!)
+                .Where(path => !string.IsNullOrEmpty(path))
+                .ToList()!;
         }
 
         private static bool IsFileInUse(string filePath)

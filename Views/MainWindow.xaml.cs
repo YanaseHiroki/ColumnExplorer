@@ -29,6 +29,9 @@ namespace ColumnExplorer.Views
         // List to store selected paths
         private List<string> _selectedPaths = new List<string>();
 
+        // List to store cut paths
+        private List<string> _cutPaths = new List<string>();
+
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
@@ -372,24 +375,18 @@ namespace ColumnExplorer.Views
                 // ListBox that has focus
                 ListBox activeListBox = Keyboard.FocusedElement as ListBox ?? CenterColumn;
 
-                // TextBlock and CurrentPath of the active ListBox
-                TextBlock activeTextBlock = CenterColumnLabel;
-                string currentPath = CenterColumnPath;
-
-                if (activeListBox == LeftColumn)
-                {
-                    activeTextBlock = LeftColumnLabel;
-                    currentPath = LeftColumnPath;
-                }
-                else if (activeListBox == RightColumn)
-                {
-                    activeTextBlock = RightColumnLabel;
-                    currentPath = RightColumnPath;
-                }
-                
                 // Paste from clipboard to the active ListBox
-                ClipboardHelper.PasteFromClipboard(activeListBox, activeTextBlock, currentPath);
+                ClipboardHelper.PasteFromClipboard(activeListBox, CenterColumnLabel, CenterColumnPath);
             }
+            else if (e.Key == Key.X && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + X
+            {
+                // 選択されたアイテムのパスを _cutPaths に保存
+                ClipboardHelper.CutSelectedItems(CenterColumn.SelectedItems);
+
+                // 選択されたアイテムをクリア
+                CenterColumn.SelectedItems.Clear();
+            }
+
             else if (e.Key == Key.Delete) // Delete
             {
                 DeleteHelper.DeleteSelectedItems(CenterColumn.SelectedItems, CenterColumnLabel); // Delete selected items
@@ -397,6 +394,17 @@ namespace ColumnExplorer.Views
             else if (e.Key == Key.N && Keyboard.Modifiers == (ModifierKeys.Control | ModifierKeys.Shift)) // Ctrl + Shift + N
             {
                 CreateNewFolder();
+            }
+            else if (e.Key == Key.X && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + X
+            {
+                // 選択されたアイテムのパスを _cutPaths に保存
+                _cutPaths = CenterColumn.SelectedItems.Cast<ListBoxItem>()
+                    .Select(item => item.Tag?.ToString()!)
+                    .Where(path => !string.IsNullOrEmpty(path))
+                    .ToList()!;
+
+                // 選択されたアイテムをクリア
+                CenterColumn.SelectedItems.Clear();
             }
         }
 
