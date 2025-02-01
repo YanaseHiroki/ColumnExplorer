@@ -27,7 +27,7 @@ namespace ColumnExplorer.Views
         // Stack to store the forward directories
         private Stack<string> _forwardDirectories = new Stack<string>();
         // List to store selected paths
-        private List<string> _selectedPaths = new List<string>();
+        private List<string?> _selectedPaths = new List<string?>();
 
         // List to store cut paths
         private List<string> _cutPaths = new List<string>();
@@ -886,8 +886,7 @@ namespace ColumnExplorer.Views
         {
             _startPoint = e.GetPosition(null);
 
-            ListBox listBox = sender as ListBox;
-            if (listBox != null)
+            if  (sender is ListBox listBox && listBox != null)
             {
                 // 選択されたすべてのアイテムのパスを取得して _selectedPaths に保存
                 _selectedPaths = listBox.SelectedItems.Cast<ListBoxItem>()
@@ -934,7 +933,26 @@ namespace ColumnExplorer.Views
                         // ドラッグの処理で _selectedPaths を参照
                         if (_selectedPaths.Count > 0)
                         {
+                            // ToolTipの設定
+                            string toolTipText = string.Join("\n", _selectedPaths.Select(p => Path.GetFileName(p)));
+                            ToolTip toolTip = new ToolTip
+                            {
+                                Content = toolTipText,
+                                Placement = System.Windows.Controls.Primitives.PlacementMode.Mouse
+                            };
+                            listBoxItem.ToolTip = toolTip;
+                            toolTip.IsOpen = true;
+
+                            // マウスが動くたびにToolTipを再表示
+                            toolTip.PlacementTarget = listBoxItem;
+                            toolTip.IsOpen = false;
+                            toolTip.IsOpen = true;
+
                             DragDrop.DoDragDrop(listBoxItem, new DataObject("SelectedPaths", _selectedPaths.ToArray()), DragDropEffects.Move);
+
+                            // ドラッグ終了後にToolTipを閉じる
+                            toolTip.IsOpen = false;
+                            listBoxItem.ToolTip = null;
                         }
                     }
                 }
