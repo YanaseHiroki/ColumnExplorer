@@ -1033,16 +1033,28 @@ namespace ColumnExplorer.Views
                 MoveItemsLeft();
             }
         }
+        /// <summary>
+        /// Event handler called when the right column label is clicked.
+        /// Loads the content of the right column path.
+        /// </summary>
         private void RightColumnLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             LoadAllContent(RightColumnPath);
         }
 
+        /// <summary>
+        /// Event handler called when the center column label is clicked.
+        /// Loads the content of the center column path.
+        /// </summary>
         private void CenterColumnLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             LoadAllContent(CenterColumnPath);
         }
 
+        /// <summary>
+        /// Event handler called when the left column label is clicked.
+        /// Loads the content of the left column path.
+        /// </summary>
         private void LeftColumnLabel_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             LoadAllContent(LeftColumnPath);

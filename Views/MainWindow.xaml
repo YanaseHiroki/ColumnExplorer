@@ -17,7 +17,8 @@
         </Grid.ColumnDefinitions>
 
         <!-- TextBlock for displaying folder name in the left column -->
-        <Border Grid.Column="0" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0">
+        <Border Grid.Column="0" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0"
+        MouseLeftButtonUp="LeftColumnLabel_MouseLeftButtonUp">
             <TextBlock x:Name="LeftColumnLabel" HorizontalAlignment="Center"
                        FontWeight="Bold" Padding="5" FontSize="13"
                        Foreground="Blue" TextDecorations="Underline" />
@@ -33,7 +34,8 @@
         <GridSplitter Grid.Column="1" Grid.RowSpan="2" Width="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Focusable="False" />
 
         <!-- TextBlock for displaying folder name in the center column -->
-        <Border Grid.Column="2" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0">
+        <Border Grid.Column="2" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0"
+        MouseLeftButtonUp="CenterColumnLabel_MouseLeftButtonUp">
             <TextBlock x:Name="CenterColumnLabel" HorizontalAlignment="Center"
                        FontWeight="Bold" Padding="5" FontSize="13"
                        Foreground="Blue" TextDecorations="Underline" />
@@ -49,7 +51,8 @@
         <GridSplitter Grid.Column="3" Grid.RowSpan="2" Width="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ResizeBehavior="PreviousAndNext" Focusable="False" />
 
         <!-- TextBlock for displaying folder name in the right column -->
-        <Border Grid.Column="4" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0">
+        <Border Grid.Column="4" Grid.Row="0" Background="Azure" BorderBrush="Gray" BorderThickness="1,1,1,0"
+        MouseLeftButtonUp="RightColumnLabel_MouseLeftButtonUp">
             <TextBlock x:Name="RightColumnLabel" HorizontalAlignment="Center"
                        FontWeight="Bold" Padding="5" FontSize="13"
                        Foreground="Blue" TextDecorations="Underline" />
