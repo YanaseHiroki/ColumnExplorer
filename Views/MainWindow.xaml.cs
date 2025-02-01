@@ -1007,7 +1007,7 @@ namespace ColumnExplorer.Views
                             MessageBox.Show($"ファイルの移動中にエラーが発生しました: {ex.Message}");
                         }
                     }
-                    LoadAllContent(CenterColumnPath); // コンテンツを再読み込み
+                    LoadAllContent(targetPath); // 移動先のコンテンツを再読み込み
                 }
             }
         }
