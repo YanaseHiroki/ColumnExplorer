@@ -369,6 +369,9 @@ namespace ColumnExplorer.Views
             else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + C
             {
                 ClipboardHelper.CopySelectedItemsToClipboard(CenterColumn.SelectedItems, RightColumnLabel); // Copy selected items to clipboard
+
+                // Clear cut paths
+                _cutPaths.Clear();
             }
             else if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + V
             {
@@ -377,14 +380,37 @@ namespace ColumnExplorer.Views
 
                 // Paste from clipboard to the active ListBox
                 ClipboardHelper.PasteFromClipboard(activeListBox, CenterColumnLabel, CenterColumnPath);
+
+                // Restore the text color of the cut items
+                foreach (string cutPath in _cutPaths)
+                {
+                    ListBoxItem? item = CenterColumn.Items.Cast<ListBoxItem>()
+                        .FirstOrDefault(i => i.Tag?.ToString() == cutPath);
+                    if (item != null)
+                    {
+                        ResetCutItemColor(item);
+                    }
+                }
+
+                // Clear cut paths
+                _cutPaths.Clear();
             }
             else if (e.Key == Key.X && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + X
             {
-                // 選択されたアイテムのパスを _cutPaths に保存
+                // Save the paths of the selected items to _cutPaths
                 ClipboardHelper.CutSelectedItems(CenterColumn.SelectedItems);
 
-                // 選択されたアイテムをクリア
+                // Change the text color of the selected items
+                foreach (ListBoxItem item in CenterColumn.SelectedItems)
+                {
+                    ChangeCutItemColor(item);
+                }
+
+                // Clear the selected items
                 CenterColumn.SelectedItems.Clear();
+
+                // Clear clipboard data
+                Clipboard.Clear();
             }
 
             else if (e.Key == Key.Delete) // Delete
@@ -397,13 +423,13 @@ namespace ColumnExplorer.Views
             }
             else if (e.Key == Key.X && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + X
             {
-                // 選択されたアイテムのパスを _cutPaths に保存
+                // Save the paths of the selected items to _cutPaths
                 _cutPaths = CenterColumn.SelectedItems.Cast<ListBoxItem>()
                     .Select(item => item.Tag?.ToString()!)
                     .Where(path => !string.IsNullOrEmpty(path))
                     .ToList()!;
 
-                // 選択されたアイテムをクリア
+                // Clear the selected items
                 CenterColumn.SelectedItems.Clear();
             }
         }
@@ -893,6 +919,18 @@ namespace ColumnExplorer.Views
                             listBoxItem.IsSelected = true;
                         }
 
+                        // _selectedPathsをCenterColumn.SelectedItemsに設定
+                        CenterColumn.SelectedItems.Clear();
+                        foreach (var path in _selectedPaths)
+                        {
+                            ListBoxItem item = CenterColumn.Items.Cast<ListBoxItem>()
+                                .FirstOrDefault(i => i.Tag?.ToString() == path);
+                            if (item != null)
+                            {
+                                CenterColumn.SelectedItems.Add(item);
+                            }
+                        }
+
                         // ドラッグの処理で _selectedPaths を参照
                         if (_selectedPaths.Count > 0)
                         {
@@ -1067,6 +1105,35 @@ namespace ColumnExplorer.Views
             CenterColumn.Items.Clear();
             RightColumnLabel.Text = string.Empty;
             RightColumn.Items.Clear();
+        }
+
+        /// <summary>
+        /// カットしたアイテムの文字色を変更します。
+        /// </summary>
+        /// <param name="listBoxItem">カットしたアイテム。</param>
+        private void ChangeCutItemColor(ListBoxItem listBoxItem)
+        {
+            string? path = listBoxItem.Tag?.ToString();
+            if (path != null)
+            {
+                if (Directory.Exists(path))
+                {
+                    listBoxItem.Foreground = Brushes.LightBlue; // フォルダーの場合は水色
+                }
+                else if (File.Exists(path))
+                {
+                    listBoxItem.Foreground = Brushes.Gray; // ファイルの場合は灰色
+                }
+            }
+        }
+
+        /// <summary>
+        /// カットしたアイテムの文字色を元に戻します。
+        /// </summary>
+        /// <param name="listBoxItem">カットしたアイテム。</param>
+        private void ResetCutItemColor(ListBoxItem listBoxItem)
+        {
+            listBoxItem.Foreground = Brushes.Black; // 元の色に戻す
         }
 
     }
