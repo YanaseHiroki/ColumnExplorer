@@ -209,7 +209,7 @@ namespace ColumnExplorer.Views
                 {
                     // Display the content of the folder in the right column
                     DirectoryHelper.LoadDirectoryContent(RightColumn, itemPath);
-                    RightColumnLabel.Text = GetLabel(itemPath);
+                    RightColumnLabel.Text = PathHelper.GetLabel(itemPath);
                     RightColumnPath = itemPath;
                 }
             }
@@ -383,7 +383,7 @@ namespace ColumnExplorer.Views
             }
             else if (e.Key == Key.C && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + C
             {
-                ClipboardHelper.CopySelectedItemsToClipboard(CenterColumn.SelectedItems, RightColumnLabel); // Copy selected items to clipboard
+                ClipboardHelper.CopySelectedItemsToClipboard(CenterColumn.SelectedItems, RightColumnPath, RightColumnLabel); // Copy selected items to clipboard
 
                 // Clear cut paths
                 _cutPaths.Clear();
@@ -394,7 +394,7 @@ namespace ColumnExplorer.Views
                 ListBox activeListBox = Keyboard.FocusedElement as ListBox ?? CenterColumn;
 
                 // Paste from clipboard to the active ListBox
-                ClipboardHelper.PasteFromClipboard(activeListBox, CenterColumnLabel, CenterColumnPath);
+                ClipboardHelper.PasteFromClipboard(activeListBox, CenterColumnLabel, CenterColumnPath, CenterColumnPath);
 
                 // Restore the text color of the cut items
                 foreach (string cutPath in _cutPaths)
@@ -486,7 +486,7 @@ namespace ColumnExplorer.Views
                     .ToList();
 
                 // Feedback "Undo!"
-                await ClipboardHelper.UpdateLabelTemporarily(CenterColumnLabel, UNDO);
+                await ClipboardHelper.UpdateLabelTemporarily(CenterColumnLabel, CenterColumnPath, UNDO);
             }
         }
 
@@ -515,7 +515,7 @@ namespace ColumnExplorer.Views
                     .ToList();
 
                 // Feedback "Redo!"
-                await ClipboardHelper.UpdateLabelTemporarily(CenterColumnLabel, REDO);
+                await ClipboardHelper.UpdateLabelTemporarily(CenterColumnLabel, CenterColumnPath, REDO);
             }
         }
 
@@ -730,7 +730,7 @@ namespace ColumnExplorer.Views
             {
                 // Display the content of the directory in the left column
                 DirectoryHelper.LoadDirectoryContent(LeftColumn, newLeftColumnPath);
-                LeftColumnLabel.Text = GetLabel(newLeftColumnPath);
+                LeftColumnLabel.Text = PathHelper.GetLabel(newLeftColumnPath);
                 LeftColumnPath = newLeftColumnPath;
             }
 
@@ -754,18 +754,6 @@ namespace ColumnExplorer.Views
 
             // Push the current directory to the stack
             PushToPreviousDirectories(CenterColumnPath);
-        }
-
-        /// <summary>
-        /// Gets the label based on the specified path.
-        /// </summary>
-        /// <param name="path">The path to get the label for.</param>
-        /// <returns>The label based on the path.</returns>
-        private string GetLabel(string path)
-        {
-            return (path == System.IO.Path.GetPathRoot(path) || path == DRIVE)
-                ? path
-                : System.IO.Path.GetFileName(path);
         }
 
         /// <summary>
@@ -901,7 +889,7 @@ namespace ColumnExplorer.Views
                 {
                     // Display the content of the directory
                     DirectoryHelper.LoadDirectoryContent(CenterColumn, CenterColumnPath);
-                    CenterColumnLabel.Text = GetLabel(CenterColumnPath);
+                    CenterColumnLabel.Text = PathHelper.GetLabel(CenterColumnPath);
                 }
             }
             catch (Exception ex)
@@ -925,7 +913,7 @@ namespace ColumnExplorer.Views
                 {
                     // Display the content of the directory
                     DirectoryHelper.LoadDirectoryContent(LeftColumn, LeftColumnPath);
-                    LeftColumnLabel.Text = GetLabel(LeftColumnPath);
+                    LeftColumnLabel.Text = PathHelper.GetLabel(LeftColumnPath);
                 }
 
                 if (LeftColumn.Items.Count > 0 && CenterColumnPath != null)
@@ -1076,9 +1064,10 @@ namespace ColumnExplorer.Views
 
                 if (sourcePaths != null && !string.IsNullOrEmpty(targetPath) && Directory.Exists(targetPath))
                 {
+                    // Move the items
                     MoveFiles(sourcePaths, targetPath);
-                    LoadAllContent(targetPath); // 移動先のコンテンツを再読み込み
-                    await ClipboardHelper.UpdateLabelTemporarily(CenterColumnLabel, MOVE);
+                    LoadAllContent(targetPath);
+                    await ClipboardHelper.UpdateLabelTemporarily(CenterColumnLabel, CenterColumnPath, MOVE);
                 }
             }
         }
@@ -1115,7 +1104,7 @@ namespace ColumnExplorer.Views
                 }
             }
 
-            // 全体を1回の操作としてUndoにPush
+            // Push an action to the undo stack
             Action undoAction = () => UndoMoveFiles(movedItems);
             Action redoAction = () => RedoMoveFiles(movedItems);
             AddToUndoStack(undoAction, redoAction);

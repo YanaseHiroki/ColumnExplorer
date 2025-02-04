@@ -22,7 +22,7 @@ namespace ColumnExplorer.Helpers
         /// </summary>
         /// <param name="selectedItems">The collection of selected items to copy to the clipboard.</param>
         /// <param name="rightColumnLabel">The label to update after copying.</param>
-        public static async void CopySelectedItemsToClipboard(System.Collections.IList selectedItems, TextBlock rightColumnLabel)
+        public static async void CopySelectedItemsToClipboard(System.Collections.IList selectedItems, string currentPath, TextBlock rightColumnLabel)
         {
             if (selectedItems.Count > 0)
             {
@@ -44,7 +44,7 @@ namespace ColumnExplorer.Helpers
                     Clipboard.SetFileDropList(selectedPaths);
 
                     // Update the label to COPIED and change background color
-                    await UpdateLabelTemporarily(rightColumnLabel, COPIED);
+                    await UpdateLabelTemporarily(rightColumnLabel, currentPath, COPIED);
                 }
             }
         }
@@ -53,8 +53,10 @@ namespace ColumnExplorer.Helpers
         /// Pastes the items from the clipboard to the specified ListBox and copies the files to the specified directory.
         /// </summary>
         /// <param name="column">The ListBox to paste the items into.</param>
-        /// <param name="destinationDirectory">The directory to copy the files to.</param>
-        public static async void PasteFromClipboard(ListBox column, TextBlock columnLabel, string destination)
+        /// <param name="columnLabel">Path for the label to update after pasting.</param>
+        /// <param name="currentPath">The current path of the column.</param>
+        /// <param name="destination">The directory to copy the files to.</param>
+        public static async void PasteFromClipboard(ListBox column, TextBlock columnLabel, string currentPath, string destination)
         {
             if (Clipboard.ContainsFileDropList())
             {
@@ -103,7 +105,7 @@ namespace ColumnExplorer.Helpers
                 }
 
                 // provide feedback to the user
-                await UpdateLabelTemporarily(columnLabel, PASTED);
+                await UpdateLabelTemporarily(columnLabel, currentPath, PASTED);
             }
 
             // move the cut items
@@ -125,7 +127,7 @@ namespace ColumnExplorer.Helpers
                 }
                 _cutPaths.Clear();
                 // provide feedback to the user
-                await UpdateLabelTemporarily(columnLabel, PASTED);
+                await UpdateLabelTemporarily(columnLabel, currentPath, PASTED);
             }
         }
 
@@ -141,27 +143,33 @@ namespace ColumnExplorer.Helpers
                 .ToList()!;
         }
 
+        /// <summary>
+        /// Checks if the specified file is in use.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <returns></returns>
         private static bool IsFileInUse(string filePath)
         {
             try
             {
-                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None))
-                {
-                    // ファイルが開けた場合、使用中ではない
-                }
+                using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.None));
             }
             catch (IOException)
             {
-                // IOExceptionが発生した場合、ファイルは使用中
                 return true;
             }
             return false;
         }
 
-        public static async Task UpdateLabelTemporarily(TextBlock label, string message)
+        /// <summary>
+        /// Updates the label temporarily with the specified message.
+        /// </summary>
+        /// <param name="label"></param>
+        /// <param name="currenPath"></param>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static async Task UpdateLabelTemporarily(TextBlock label, string currenPath, string message)
         {
-            string originalText = label.Text;
-            Brush originalBackground = label.Background;
             label.Text = message;
             label.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(STATUS_BACKGROUND));
 
@@ -169,8 +177,8 @@ namespace ColumnExplorer.Helpers
             await Task.Delay(1500);
 
             // Restore the original text and background color
-            label.Text = originalText;
-            label.Background = originalBackground;
+            label.Text = PathHelper.GetLabel(currenPath);
+            label.Background = Brushes.Transparent;
         }
     }
 }
