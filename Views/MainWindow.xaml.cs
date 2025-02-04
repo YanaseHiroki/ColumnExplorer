@@ -7,6 +7,7 @@ using System.Windows.Media;
 using ColumnExplorer.Helpers;
 using ColumnExplorer.Previewers;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace ColumnExplorer.Views
 {
@@ -36,7 +37,9 @@ namespace ColumnExplorer.Views
 
         // Stack to store the undo and redo actions
         private Stack<Action> _undoStack = new Stack<Action>();
+        private Stack<Action> _undoStackDraft = new Stack<Action>();
         private Stack<Action> _redoStack = new Stack<Action>();
+        private Stack<Action> _redoStackDraft = new Stack<Action>();
 
         // List to store selected paths
         private List<string?> _selectedPaths = new List<string?>();
@@ -453,14 +456,25 @@ namespace ColumnExplorer.Views
                 Redo();
             }
         }
-        
+
+        /// <summary>
+        /// Undo the last action.
+        /// Then push an action from the redo draft stack to the redo stack.
+        /// </summary>
         private async void Undo()
         {
             if (_undoStack.Count > 0)
             {
+                // Undo the last action
                 var undoAction = _undoStack.Pop();
-                //_redoStack.Push(undoAction); // need to be contravert
                 undoAction();
+                _undoStackDraft.Push(undoAction);
+
+                //Then push an action from the redo draft stack to the redo stack
+                if (_redoStackDraft.Count > 0)
+                {
+                    _redoStack.Push(_redoStackDraft.Pop());
+                }
 
                 // Load all contents
                 LoadAllContent(CenterColumnPath);
@@ -482,8 +496,14 @@ namespace ColumnExplorer.Views
             if (_redoStack.Count > 0)
             {
                 var redoAction = _redoStack.Pop();
-                //_undoStack.Push(redoAction); // need to be contravert
                 redoAction();
+                _redoStackDraft.Push(redoAction);
+
+                //Then push an action from the undo draft stack to the undo stack
+                if (_undoStackDraft.Count > 0)
+                {
+                    _undoStack.Push(_undoStackDraft.Pop());
+                }
 
                 // Load all contents
                 LoadAllContent(CenterColumnPath);
@@ -977,21 +997,19 @@ namespace ColumnExplorer.Views
                     ListBoxItem listBoxItem = FindAncestor<ListBoxItem>((DependencyObject)e.OriginalSource);
                     if (listBoxItem != null)
                     {
-                        // Ctrlキーが押されているように扱う
-                        if (!listBox.SelectedItems.Contains(listBoxItem))
-                        {
-                            listBoxItem.IsSelected = true;
-                        }
 
                         // _selectedPathsをCenterColumn.SelectedItemsに設定
-                        CenterColumn.SelectedItems.Clear();
-                        foreach (var path in _selectedPaths)
+                        if (_selectedPaths.Count > 1)
                         {
-                            ListBoxItem item = CenterColumn.Items.Cast<ListBoxItem>()
-                                .FirstOrDefault(i => i.Tag?.ToString() == path);
-                            if (item != null)
+                            CenterColumn.SelectedItems.Clear();
+                            foreach (var path in _selectedPaths)
                             {
-                                CenterColumn.SelectedItems.Add(item);
+                                ListBoxItem item = CenterColumn.Items.Cast<ListBoxItem>()
+                                    .FirstOrDefault(i => i.Tag?.ToString() == path);
+                                if (item != null)
+                                {
+                                    CenterColumn.SelectedItems.Add(item);
+                                }
                             }
                         }
 
@@ -1134,8 +1152,10 @@ namespace ColumnExplorer.Views
         private void AddToUndoStack(Action undoAction, Action redoAction)
         {
             _undoStack.Push(undoAction);
-            _redoStack.Clear(); // 新しい操作が追加されたら、やり直し履歴をクリア
-            _redoStack.Push(redoAction);
+            _redoStackDraft.Push(redoAction);
+
+            // Clear the redo stack
+            _redoStack.Clear();
         }
 
         // ヘルパーメソッド: 指定した型の先祖を見つける
