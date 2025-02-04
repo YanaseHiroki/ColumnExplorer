@@ -1090,39 +1090,50 @@ namespace ColumnExplorer.Views
         /// <param name="targetPath">移動先のディレクトリパス。</param>
         private void MoveFiles(string[] sourcePaths, string targetPath)
         {
-            List<(string sourcePath, string destinationPath)> movedFiles = new List<(string sourcePath, string destinationPath)>();
+            List<(string sourcePath, string destinationPath)> movedItems = new List<(string sourcePath, string destinationPath)>();
 
             foreach (var sourcePath in sourcePaths)
             {
-                string fileName = Path.GetFileName(sourcePath);
-                string destinationPath = Path.Combine(targetPath, fileName);
+                string itemName = Path.GetFileName(sourcePath);
+                string destinationPath = Path.Combine(targetPath, itemName);
 
                 try
                 {
-                    File.Move(sourcePath, destinationPath);
-                    movedFiles.Add((sourcePath, destinationPath));
+                    if (Directory.Exists(sourcePath))
+                    {
+                        Directory.Move(sourcePath, destinationPath);
+                    }
+                    else if (File.Exists(sourcePath))
+                    {
+                        File.Move(sourcePath, destinationPath);
+                    }
+                    movedItems.Add((sourcePath, destinationPath));
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show($"ファイルの移動中にエラーが発生しました: {ex.Message}");
+                    MessageBox.Show($"Error moving item: {ex.Message}");
                 }
             }
 
             // 全体を1回の操作としてUndoにPush
-            Action undoAction = () => UndoMoveFiles(movedFiles);
-            Action redoAction = () => RedoMoveFiles(movedFiles);
+            Action undoAction = () => UndoMoveFiles(movedItems);
+            Action redoAction = () => RedoMoveFiles(movedItems);
             AddToUndoStack(undoAction, redoAction);
         }
 
         /// <summary>
-        /// ファイル移動を元に戻すメソッド
+        /// Undo the move files operation.
         /// </summary>
-        /// <param name="movedFiles">移動したファイルのリスト。</param>
-        private void UndoMoveFiles(List<(string sourcePath, string destinationPath)> movedFiles)
+        /// <param name="movedItems"></param>
+        private void UndoMoveFiles(List<(string sourcePath, string destinationPath)> movedItems)
         {
-            foreach (var (sourcePath, destinationPath) in movedFiles)
+            foreach (var (sourcePath, destinationPath) in movedItems)
             {
-                if (File.Exists(destinationPath))
+                if (Directory.Exists(destinationPath))
+                {
+                    Directory.Move(destinationPath, sourcePath);
+                }
+                else if (File.Exists(destinationPath))
                 {
                     File.Move(destinationPath, sourcePath);
                 }
@@ -1130,14 +1141,18 @@ namespace ColumnExplorer.Views
         }
 
         /// <summary>
-        /// ファイル移動を再現するメソッド
+        /// Redo the move files operation.
         /// </summary>
-        /// <param name="movedFiles">移動したファイルのリスト。</param>
-        private void RedoMoveFiles(List<(string sourcePath, string destinationPath)> movedFiles)
+        /// <param name="movedItems"></param>
+        private void RedoMoveFiles(List<(string sourcePath, string destinationPath)> movedItems)
         {
-            foreach (var (sourcePath, destinationPath) in movedFiles)
+            foreach (var (sourcePath, destinationPath) in movedItems)
             {
-                if (File.Exists(sourcePath))
+                if (Directory.Exists(sourcePath))
+                {
+                    Directory.Move(sourcePath, destinationPath);
+                }
+                else if (File.Exists(sourcePath))
                 {
                     File.Move(sourcePath, destinationPath);
                 }
