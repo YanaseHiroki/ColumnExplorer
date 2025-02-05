@@ -6,9 +6,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using ColumnExplorer.Helpers;
 using ColumnExplorer.Previewers;
-using System.Collections.Generic;
-using System.Collections;
-
 namespace ColumnExplorer.Views
 {
     /// <summary>
@@ -359,7 +356,7 @@ namespace ColumnExplorer.Views
                         .FirstOrDefault(i => i.Tag?.ToString() == cutPath);
                     if (item != null)
                     {
-                        ResetCutItemColor(item);
+                        item.Foreground = Brushes.Black; // 元の色に戻す
                     }
                 }
 
@@ -413,6 +410,10 @@ namespace ColumnExplorer.Views
             else if (e.Key == Key.Y && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + Y
             {
                 Redo();
+            }
+            else if (e.Key == Key.F2) // F2
+            {
+                RenameHelper.RenameSelectedItem(this, CenterColumn, CenterColumnPath);
             }
         }
 
@@ -1253,15 +1254,5 @@ namespace ColumnExplorer.Views
                 }
             }
         }
-
-        /// <summary>
-        /// カットしたアイテムの文字色を元に戻します。
-        /// </summary>
-        /// <param name="listBoxItem">カットしたアイテム。</param>
-        private void ResetCutItemColor(ListBoxItem listBoxItem)
-        {
-            listBoxItem.Foreground = Brushes.Black; // 元の色に戻す
-        }
-
     }
 }

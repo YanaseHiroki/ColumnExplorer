@@ -6,8 +6,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Security.AccessControl;
 using NUnit.Framework.Internal;
+using ColumnExplorer.Helpers;
 
-namespace ColumnExplorer.Helpers
+namespace ColumnExplorer.Previewers
 {
     public static class UnsupportedFilePreviewer
     {
@@ -80,7 +81,7 @@ namespace ColumnExplorer.Helpers
             {
                 Text = propertyValue,
                 Margin = new Thickness(5),
-                ToolTip =  GetToolTip(propertyName, propertyValue),
+                ToolTip = GetToolTip(propertyName, propertyValue),
                 IsReadOnly = true,
                 Background = Brushes.Transparent
             };
