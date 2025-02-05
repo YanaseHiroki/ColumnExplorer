@@ -64,6 +64,7 @@ ColumnExplorer is a WPF application designed to help users navigate and manage t
   - `Up Arrow (↑)`: Select the previous item.
   - `Down Arrow (↓)`: Select the next item.
   - `Enter`: Open selected items.
+  - `F2`: Rename the selected item。
   - `F5`: Refresh the current directory.
   - `Ctrl + A`: Select all items.
   - `Ctrl + W`: Close the application.
@@ -136,6 +137,7 @@ ColumnExplorer は、ファイルシステムを効率的にナビゲートお�
   - `上矢印 (↑)`: 前のアイテムを選択。
   - `下矢印 (↓)`: 次のアイテムを選択。
   - `Enter`: 選択したアイテムを開く。
+  - `F2`: 選択したアイテムの名前を変更。
   - `F5`: 現在のディレクトリを更新。
   - `Ctrl + A`: すべてのアイテムを選択。
   - `Ctrl + W`: アプリケーションを閉じる。
