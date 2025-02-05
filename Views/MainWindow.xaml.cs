@@ -279,51 +279,7 @@ namespace ColumnExplorer.Views
                 // If the selected item is a text file, display a preview in the right column
                 if (RightColumnPath != null && File.Exists(RightColumnPath))
                 {
-                    var extension = Path.GetExtension(RightColumnPath).ToLower();
-                    if (extension == ".txt")
-                    {
-                        TextFilePreviewer.PreviewTextFile(RightColumn, RightColumnPath);
-                    }
-                    else if (extension == ".docx")
-                    {
-                        WordFilePreviewer.PreviewWordFile(RightColumn, RightColumnPath);
-                    }
-                    else if (extension == ".pptx")
-                    {
-                        var stackPanel = new StackPanel();
-                        var slides = PowerPointFilePreviewer.GetSlidesAsBitmaps(RightColumnPath, TimeSpan.FromMinutes(1), 100 * 1024 * 1024); // 100MB memory limit
-                        RightColumn.Items.Clear();
-                        foreach (var slide in slides)
-                        {
-                            var image = new Image
-                            {
-                                Source = PowerPointFilePreviewer.ConvertBitmapToBitmapImage(slide),
-                                Margin = new Thickness(5)
-                            };
-                            stackPanel.Children.Add(image);
-                        }
-                        RightColumn.Items.Add(new ListBoxItem { Content = stackPanel });
-                    }
-                    else if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".bmp" || extension == ".gif" || extension == ".heic" || extension == ".webp")
-                    {
-                        var imageControl = new Image();
-                        ImageFilePreviewer.PreviewImageFile(imageControl, RightColumnPath);
-                        RightColumn.Items.Clear();
-                        RightColumn.Items.Add(new ListBoxItem { Content = imageControl });
-                    }
-                    // If the selected item is a PDF file, display a preview in the right column
-                    else if (extension == ".pdf")
-                    {
-                        PdfFilePreviewer.PreviewPdfFile(RightColumn, RightColumnPath);
-                    }
-                    else
-                    {
-                        // If the selected item is a file with an unsupported extension, display its properties
-                        if (RightColumnPath != null && File.Exists(RightColumnPath))
-                        {
-                            UnsupportedFilePreviewer.PreviewUnsupportedFile(RightColumn, RightColumnPath);
-                        }
-                    }
+                    FilePreviewer.PreviewFile(RightColumn, RightColumnPath);
                 }
             }
         }
@@ -409,6 +365,9 @@ namespace ColumnExplorer.Views
 
                 // Clear cut paths
                 _cutPaths.Clear();
+
+                // Reload all contents
+                LoadAllContent(CenterColumnPath);
             }
             else if (e.Key == Key.X && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + X
             {
