@@ -9,10 +9,10 @@
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <TextBlock x:Name="PromptText" Margin="15,10,15,0" Grid.Row="0" FontSize="14"/>
-        <TextBox x:Name="ResponseTextBox" Grid.Row="1" Margin="15,0" Height="24" VerticalContentAlignment="Center" FontSize="14"/>
+        <TextBox x:Name="ResponseTextBox" Grid.Row="1" Margin="15,20,15,21" Height="24" VerticalContentAlignment="Center" FontSize="14"/>
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0">
             <Button x:Name="OkButton" Content="OK" Width="75" Margin="10,5,12,10" Click="OkButton_Click" Height="25"/>
-            <Button x:Name="CancelButton" fContent="Cancel" Width="75" Margin="12,5,10,10" Click="CancelButton_Click"/>
+            <Button x:Name="CancelButton" Content="Cancel" Width="75" Margin="12,5,10,10" Click="CancelButton_Click"/>
         </StackPanel>
     </Grid>
 </Window>

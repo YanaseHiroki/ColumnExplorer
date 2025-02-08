@@ -19,6 +19,7 @@ namespace ColumnExplorer.Views
         private const string MOVE = "Move!";
         private const string UNDO = "Undo!";
         private const string REDO = "Redo!";
+        private const string RENAME = "Rename!";
 
         // Home directory
         internal static string _homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
@@ -343,11 +344,8 @@ namespace ColumnExplorer.Views
             }
             else if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + V
             {
-                // ListBox that has focus
-                ListBox activeListBox = Keyboard.FocusedElement as ListBox ?? CenterColumn;
-
                 // Paste from clipboard to the active ListBox
-                ClipboardHelper.PasteFromClipboard(activeListBox, CenterColumnLabel, CenterColumnPath, CenterColumnPath);
+                ClipboardHelper.PasteFromClipboard(CenterColumn, CenterColumnLabel, CenterColumnPath, CenterColumnPath);
 
                 // Restore the text color of the cut items
                 foreach (string cutPath in _cutPaths)
@@ -415,6 +413,34 @@ namespace ColumnExplorer.Views
             {
                 RenameHelper.RenameSelectedItem(this, CenterColumn, CenterColumnPath);
             }
+            else if (e.Key == Key.R && Keyboard.Modifiers == ModifierKeys.Control) // Ctrl + R
+            {
+                ShowBulkRenameDialog();
+            }
+        }
+
+        /// <summary>
+        /// Shows the bulk rename dialog.
+        /// </summary>
+        private void ShowBulkRenameDialog()
+        {
+            // Dsiplay the bulk rename dialog
+            var bulkRenameDialog = new BulkRenameDialog();
+            bulkRenameDialog.Owner = this;
+            bulkRenameDialog.ShowDialog();
+
+            // If the user clicks the OK button
+            if (bulkRenameDialog.DialogResult == true)
+            {
+                // Execute bulk rename
+                RenameHelper.BulkRename(CenterColumn.SelectedItems, bulkRenameDialog.FindText, bulkRenameDialog.ReplaceText);
+
+                // Reload all contents
+                LoadAllContent(CenterColumnPath);
+
+                // Provide feedback to the user
+                ClipboardHelper.UpdateLabelTemporarily(CenterColumnLabel, CenterColumnPath, RENAME);
+            }
         }
 
         /// <summary>
@@ -450,7 +476,7 @@ namespace ColumnExplorer.Views
             }
         }
 
-        // 操作を再現するメソッド
+        // Redo the last action.
         private async Task Redo()
         {
             if (_redoStack.Count > 0)
