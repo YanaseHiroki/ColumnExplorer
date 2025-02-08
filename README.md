@@ -58,22 +58,26 @@ ColumnExplorer is a WPF application designed to help users navigate and manage t
   - Click on the column labels to reload the content of that column.
   - Use the mouse wheel to scroll through items.
 
-- **Keyboard Shortcuts**:
-  - `Right Arrow (→)`: Move to a subdirectory.
-  - `Left Arrow (←)`: Move to the parent directory.
-  - `Up Arrow (↑)`: Select the previous item.
-  - `Down Arrow (↓)`: Select the next item.
-  - `Enter`: Open selected items.
-  - `F5`: Refresh the current directory.
-  - `Ctrl + A`: Select all items.
-  - `Ctrl + W`: Close the application.
-  - `Ctrl + C`: Copy selected items to clipboard.
-  - `Ctrl + V`: Paste items from clipboard.
-  - `Ctrl + X`: Cut selected items.
-  - `Delete`: Delete selected items.
-  - `Ctrl + Shift + N`: Create a new folder.
-  - `Ctrl + Z`: Undo the last action.
-  - `Ctrl + Y`: Redo the last undone action.
+**Keyboard Shortcuts**
+| **Key**               | **Function**                          |
+|------------------------|--------------------------------------|
+| Right Arrow (→)        | Move to a subdirectory               |
+| Left Arrow (←)         | Move to the parent directory         |
+| Up Arrow (↑)           | Select the previous item             |
+| Down Arrow (↓)         | Select the next item                 |
+| Enter                  | Open selected items                  |
+| F2                     | Rename the selected item             |
+| F5                     | Refresh the current directory        |
+| Ctrl + A               | Select all items                     |
+| Ctrl + W               | Close the application                |
+| Ctrl + C               | Copy selected items to clipboard     |
+| Ctrl + V               | Paste items from clipboard           |
+| Ctrl + X               | Cut selected items                   |
+| Delete                 | Delete selected items                |
+| Ctrl + Shift + N       | Create a new folder                  |
+| Ctrl + Z               | Undo the last action                 |
+| Ctrl + Y               | Redo the last undone action          |
+
 
 ## Drag-and-Drop
 - **Start Dragging**: Click and hold on an item, then move the mouse to start dragging.
@@ -130,22 +134,26 @@ ColumnExplorer は、ファイルシステムを効率的にナビゲートお�
   - カラムラベルをクリックしてそのカラムの内容を再読み込み。
   - マウスホイールを使用してアイテムをスクロール。
 
-- **キーボードショートカット**:
-  - `右矢印 (→)`: サブディレクトリに移動。
-  - `左矢印 (←)`: 親ディレクトリに移動。
-  - `上矢印 (↑)`: 前のアイテムを選択。
-  - `下矢印 (↓)`: 次のアイテムを選択。
-  - `Enter`: 選択したアイテムを開く。
-  - `F5`: 現在のディレクトリを更新。
-  - `Ctrl + A`: すべてのアイテムを選択。
-  - `Ctrl + W`: アプリケーションを閉じる。
-  - `Ctrl + C`: 選択したアイテムをクリップボードにコピー。
-  - `Ctrl + V`: クリップボードからアイテムを貼り付け。
-  - `Ctrl + X`: 選択したアイテムをカット。
-  - `Delete`: 選択したアイテムを削除。
-  - `Ctrl + Shift + N`: 新しいフォルダーを作成。
-  - `Ctrl + Z`: 最後の操作を元に戻す。
-  - `Ctrl + Y`: 最後に元に戻した操作をやり直す。
+**キーボードショートカット**
+| **キー**               | **操作**                              |
+|------------------------|---------------------------------------|
+| `右矢印 (→)`           | サブディレクトリに移動               |
+| `左矢印 (←)`           | 親ディレクトリに移動                 |
+| `上矢印 (↑)`           | 前のアイテムを選択                   |
+| `下矢印 (↓)`           | 次のアイテムを選択                   |
+| `Enter`                | 選択したアイテムを開く               |
+| `F2`                   | 選択したアイテムの名前を変更         |
+| `F5`                   | 現在のディレクトリを更新             |
+| `Ctrl + A`             | すべてのアイテムを選択               |
+| `Ctrl + W`             | アプリケーションを閉じる             |
+| `Ctrl + C`             | 選択したアイテムをクリップボードにコピー |
+| `Ctrl + V`             | クリップボードからアイテムを貼り付け |
+| `Ctrl + X`             | 選択したアイテムをカット             |
+| `Delete`               | 選択したアイテムを削除               |
+| `Ctrl + Shift + N`     | 新しいフォルダーを作成               |
+| `Ctrl + Z`             | 最後の操作を元に戻す                 |
+| `Ctrl + Y`             | 最後に元に戻した操作をやり直す       |
+
 
 ## ドラッグ＆ドロップ
 - **ドラッグ開始**: アイテムをクリックして保持し、マウスを動かしてドラッグを開始。
