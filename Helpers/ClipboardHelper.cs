@@ -80,10 +80,13 @@ namespace ColumnExplorer.Helpers
                         continue;
                     }
 
+                    // Check if the file already exists and generate a new name if necessary
+                    targetFilePath = GetUniqueFilePath(targetFilePath);
+
                     // Copy the file to the destination directory
                     try
                     {
-                        File.Copy(sourceFilePath, targetFilePath, overwrite: true);
+                        File.Copy(sourceFilePath, targetFilePath, overwrite: false);
                     }
                     catch (IOException ex)
                     {
@@ -95,7 +98,7 @@ namespace ColumnExplorer.Helpers
                     // Add the file to the ListBox
                     ListBoxItem newItem = new ListBoxItem
                     {
-                        Content = fileName,
+                        Content = System.IO.Path.GetFileName(targetFilePath),
                         Tag = targetFilePath // タグにはコピー先のフルパスを設定
                     };
                     column.Items.Add(newItem);
@@ -116,6 +119,9 @@ namespace ColumnExplorer.Helpers
                     string fileName = Path.GetFileName(cutPath);
                     string destinationPath = Path.Combine(destination, fileName);
 
+                    // Check if the file already exists and generate a new name if necessary
+                    destinationPath = GetUniqueFilePath(destinationPath);
+
                     try
                     {
                         File.Move(cutPath, destinationPath);
@@ -129,6 +135,28 @@ namespace ColumnExplorer.Helpers
                 // provide feedback to the user
                 await UpdateLabelTemporarily(columnLabel, currentPath, PASTED);
             }
+        }
+
+        /// <summary>
+        /// Generates a unique file path by appending a sequential number if the file already exists.
+        /// </summary>
+        /// <param name="filePath">The original file path.</param>
+        /// <returns>A unique file path.</returns>
+        private static string GetUniqueFilePath(string filePath)
+        {
+            string directory = Path.GetDirectoryName(filePath) ?? string.Empty;
+            string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(filePath);
+            string extension = Path.GetExtension(filePath);
+            int count = 1;
+
+            string newFilePath = filePath;
+            while (File.Exists(newFilePath))
+            {
+                newFilePath = Path.Combine(directory, $"{fileNameWithoutExtension} ({count}){extension}");
+                count++;
+            }
+
+            return newFilePath;
         }
 
         /// <summary>
@@ -168,8 +196,9 @@ namespace ColumnExplorer.Helpers
         /// <param name="currenPath"></param>
         /// <param name="message"></param>
         /// <returns></returns>
-        public static async Task UpdateLabelTemporarily(TextBlock label, string currenPath, string message)
+        public static async Task UpdateLabelTemporarily(TextBlock? label, string currenPath, string message)
         {
+            if (label == null) return;
             label.Text = message;
             label.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(STATUS_BACKGROUND));
 
